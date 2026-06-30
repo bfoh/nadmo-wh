@@ -110,7 +110,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
   if (transfer.status === 'pending_approval' && canApprove) {
     return (
       <div className="flex gap-3">
-        <Button onClick={handleApprove} disabled={loading} className="bg-[#0066CC] hover:bg-[#0052a3]">
+        <Button onClick={handleApprove} disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
           Approve Transfer
         </Button>
       </div>
@@ -135,7 +135,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             <Input value={driverPhone} onChange={(e) => setDriverPhone(e.target.value)} />
           </div>
         </div>
-        <Button onClick={handleDispatch} disabled={loading} className="bg-[#0066CC] hover:bg-[#0052a3]">
+        <Button onClick={handleDispatch} disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
           Mark as In Transit
         </Button>
       </Card>

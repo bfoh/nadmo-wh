@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShieldAlert } from 'lucide-react';
+import { NadmoLogo } from '@/components/ui/nadmo-logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -41,9 +41,7 @@ export default function LoginPage() {
   return (
     <Card className="shadow-lg">
       <CardHeader className="text-center space-y-4">
-        <div className="mx-auto w-12 h-12 rounded-full bg-[#C41E3A] flex items-center justify-center">
-          <ShieldAlert className="w-7 h-7 text-white" />
-        </div>
+        <NadmoLogo className="mx-auto h-16 w-16" />
         <div>
           <CardTitle className="text-2xl font-bold text-[#0F172A]">NADMO-WMS</CardTitle>
           <CardDescription className="text-muted-foreground">
@@ -85,7 +83,7 @@ export default function LoginPage() {
 
           <Button
             type="submit"
-            className="w-full bg-[#0066CC] hover:bg-[#0052a3]"
+            className="w-full bg-[#006B3F] hover:bg-[#024F2E]"
             disabled={loading}
           >
             {loading ? 'Signing in...' : 'Sign in'}

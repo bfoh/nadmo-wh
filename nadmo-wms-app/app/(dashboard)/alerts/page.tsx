@@ -32,7 +32,7 @@ export default async function AlertsPage() {
                   key={alert.id}
                   className={`p-4 rounded-lg border ${
                     alert.type === 'critical_stock' || alert.type === 'overdue_shipment'
-                      ? 'border-l-4 border-l-[#C41E3A] bg-red-50'
+                      ? 'border-l-4 border-l-[#CE1126] bg-red-50'
                       : alert.type === 'amber_stock'
                       ? 'border-l-4 border-l-[#F59E0B] bg-amber-50'
                       : 'bg-white'

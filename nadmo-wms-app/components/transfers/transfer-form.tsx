@@ -236,7 +236,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
         ))}
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-[#0066CC] hover:bg-[#0052a3]">
+      <Button type="submit" disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
         {loading ? 'Creating...' : 'Create Transfer Order'}
       </Button>
     </form>

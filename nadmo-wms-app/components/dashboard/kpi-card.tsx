@@ -19,7 +19,7 @@ export function KpiCard({ title, value, description, icon: Icon, variant = 'defa
   };
 
   const iconColors = {
-    default: 'text-[#0066CC] bg-blue-50',
+    default: 'text-[#006B3F] bg-green-50',
     critical: 'text-red-700 bg-red-100',
     warning: 'text-amber-700 bg-amber-100',
     success: 'text-green-700 bg-green-100',

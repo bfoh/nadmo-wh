@@ -11,9 +11,9 @@ import {
   Users,
   Settings,
   Map,
-  ShieldAlert,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NadmoLogo } from '@/components/ui/nadmo-logo';
 import { UserRole } from '@/types';
 import { canViewAuditLog, canManageUsers } from '@/lib/auth';
 
@@ -41,9 +41,7 @@ export function Sidebar({ role, userName, warehouseName }: SidebarProps) {
     <aside className="hidden lg:flex flex-col w-64 h-screen sticky top-0 border-r bg-sidebar">
       <div className="p-6 border-b">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded bg-[#C41E3A] flex items-center justify-center">
-            <ShieldAlert className="w-5 h-5 text-white" />
-          </div>
+          <NadmoLogo className="h-8 w-8 shrink-0" />
           <div>
             <h1 className="font-bold text-sm leading-tight text-sidebar-foreground">NADMO-WMS</h1>
             <p className="text-[10px] text-sidebar-foreground/70">Warehouse Command</p>

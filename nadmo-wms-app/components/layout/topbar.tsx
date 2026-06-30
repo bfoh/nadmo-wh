@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { NadmoLogo } from '@/components/ui/nadmo-logo';
 import { Sidebar } from './sidebar';
 import { UserRole } from '@/types';
 import { createClient } from '@/lib/supabase/client';
@@ -48,7 +49,8 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
           </SheetContent>
         </Sheet>
 
-        <div className="lg:hidden">
+        <div className="lg:hidden flex items-center gap-2">
+          <NadmoLogo className="h-7 w-7" />
           <h1 className="font-bold text-sm">NADMO-WMS</h1>
         </div>
       </div>
@@ -58,7 +60,7 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
           <Button variant="ghost" size="icon" className="relative">
             <Bell className="w-5 h-5" />
             {notificationCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-[#C41E3A] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 w-4 h-4 bg-[#CE1126] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                 {notificationCount > 9 ? '9+' : notificationCount}
               </span>
             )}
@@ -68,7 +70,7 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
         <DropdownMenu>
           <DropdownMenuTrigger>
             <Button variant="ghost" className="flex items-center gap-2 px-2">
-              <div className="w-8 h-8 rounded-full bg-[#0066CC] flex items-center justify-center text-white text-sm font-semibold">
+              <div className="w-8 h-8 rounded-full bg-[#006B3F] flex items-center justify-center text-white text-sm font-semibold">
                 {userName.charAt(0).toUpperCase()}
               </div>
               <span className="hidden sm:inline text-sm font-medium">{userName.split(' ')[0]}</span>
@@ -84,7 +86,7 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
               <User className="w-4 h-4 mr-2" />
               Profile
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-[#C41E3A]">
+            <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer text-[#CE1126]">
               <LogOut className="w-4 h-4 mr-2" />
               Sign out
             </DropdownMenuItem>

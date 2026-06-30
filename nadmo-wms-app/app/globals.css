@@ -47,11 +47,13 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
-  /* NADMO Custom Colors */
-  --color-nadmo-red: #C41E3A;
+  /* NADMO / Ghana national colours */
+  --color-nadmo-green: #006B3F;
+  --color-nadmo-green-dark: #024F2E;
+  --color-nadmo-gold: #FCD116;
+  --color-nadmo-red: #CE1126;
+  --color-nadmo-orange: #E8761A;
   --color-nadmo-amber: #F59E0B;
-  --color-nadmo-green: #10B981;
-  --color-nadmo-blue: #0066CC;
   --color-nadmo-navy: #0F172A;
   --color-nadmo-grey-100: #F1F5F9;
   --color-nadmo-grey-500: #64748B;
@@ -65,7 +67,7 @@
   --card-foreground: #0f172a;
   --popover: #ffffff;
   --popover-foreground: #0f172a;
-  --primary: #0066CC;
+  --primary: #006B3F;
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
   --secondary-foreground: #0f172a;
@@ -73,24 +75,24 @@
   --muted-foreground: #64748b;
   --accent: #f1f5f9;
   --accent-foreground: #0f172a;
-  --destructive: #C41E3A;
+  --destructive: #CE1126;
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #0066CC;
-  --chart-1: #0066CC;
+  --ring: #006B3F;
+  --chart-1: #006B3F;
   --chart-2: #10B981;
   --chart-3: #F59E0B;
-  --chart-4: #C41E3A;
+  --chart-4: #CE1126;
   --chart-5: #64748B;
   --radius: 0.5rem;
   --sidebar: #f8fafc;
   --sidebar-foreground: #0f172a;
-  --sidebar-primary: #0066CC;
+  --sidebar-primary: #006B3F;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #f1f5f9;
   --sidebar-accent-foreground: #0f172a;
   --sidebar-border: #e2e8f0;
-  --sidebar-ring: #0066CC;
+  --sidebar-ring: #006B3F;
 }
 
 @layer base {

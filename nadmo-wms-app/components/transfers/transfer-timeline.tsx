@@ -30,7 +30,7 @@ export function TransferTimeline({ transfer }: TransferTimelineProps) {
               <div
                 className={`w-4 h-4 rounded-full border-2 z-10 mt-0.5 ${
                   event.active
-                    ? 'bg-[#0066CC] border-[#0066CC]'
+                    ? 'bg-[#006B3F] border-[#006B3F]'
                     : 'bg-white border-border'
                 }`}
               />

@@ -157,7 +157,7 @@ export function StockIntakeForm({ warehouses, skus }: StockIntakeFormProps) {
         </div>
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-[#0066CC] hover:bg-[#0052a3]">
+      <Button type="submit" disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
         {loading ? 'Receiving...' : 'Receive Stock'}
       </Button>
     </form>

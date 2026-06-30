@@ -146,7 +146,7 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
         </div>
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-[#0066CC] hover:bg-[#0052a3]">
+      <Button type="submit" disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
         {loading ? 'Dispatching...' : 'Dispatch Stock'}
       </Button>
     </form>

@@ -88,7 +88,7 @@ export default async function DashboardPage() {
             </Button>
           </Link>
           <Link href="/transfers/new">
-            <Button className="bg-[#0066CC] hover:bg-[#0052a3]">
+            <Button className="bg-[#006B3F] hover:bg-[#024F2E]">
               <Plus className="w-4 h-4 mr-2" />
               New Transfer
             </Button>
@@ -176,7 +176,7 @@ export default async function DashboardPage() {
                 {criticalAlerts.map((alert: any) => (
                   <div
                     key={alert.id}
-                    className="p-3 rounded-lg border-l-4 border-l-[#C41E3A] bg-red-50"
+                    className="p-3 rounded-lg border-l-4 border-l-[#CE1126] bg-red-50"
                   >
                     <div className="font-medium text-sm">{alert.title}</div>
                     <div className="text-xs text-muted-foreground mt-1">{alert.message}</div>

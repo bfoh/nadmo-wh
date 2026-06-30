@@ -42,7 +42,7 @@ export function TransferList({ transfers }: TransferListProps) {
           {transfers.map((transfer) => (
             <TableRow key={transfer.id} className="cursor-pointer hover:bg-muted/50">
               <TableCell className="font-medium">
-                <Link href={`/transfers/${transfer.id}`} className="text-[#0066CC] hover:underline">
+                <Link href={`/transfers/${transfer.id}`} className="text-[#006B3F] hover:underline">
                   {transfer.transfer_number}
                 </Link>
               </TableCell>
