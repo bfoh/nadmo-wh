@@ -40,6 +40,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
   const [items, setItems] = useState<TransferLineItem[]>([
     { sku_id: '', quantity: '', batch_lot: 'DEFAULT' },
   ]);
+  const createdDate = new Date().toLocaleDateString();
 
   function addItem() {
     setItems([...items, { sku_id: '', quantity: '', batch_lot: 'DEFAULT' }]);
@@ -181,6 +182,11 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
             onChange={(e) => setExpectedDeliveryDate(e.target.value)}
             required
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="created">Date Created</Label>
+          <Input id="created" type="text" value={createdDate} readOnly disabled />
         </div>
       </div>
 
