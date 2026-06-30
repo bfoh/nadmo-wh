@@ -39,7 +39,7 @@ export function Sidebar({ role, userName, warehouseName }: SidebarProps) {
 
   return (
     <aside className="hidden lg:flex flex-col w-64 h-screen sticky top-0 border-r bg-sidebar">
-      <div className="p-6 border-b">
+      <div className="h-16 px-4 lg:px-6 border-b flex items-center">
         <div className="flex items-center gap-2">
           <NadmoLogo className="h-8 w-8 shrink-0" />
           <div>

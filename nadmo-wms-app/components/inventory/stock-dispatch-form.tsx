@@ -28,6 +28,7 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
   const [loading, setLoading] = useState(false);
   const [warehouseId, setWarehouseId] = useState('');
   const [skuId, setSkuId] = useState('');
+  const [batchLot, setBatchLot] = useState('');
   const [quantity, setQuantity] = useState('');
   const [reason, setReason] = useState('');
 
@@ -36,10 +37,37 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
     [inventory, warehouseId]
   );
 
-  const selectedItem = useMemo(
-    () => availableItems.find((item) => item.sku_id === skuId),
+  // Distinct items in stock at the chosen warehouse (one entry per SKU).
+  const skuOptions = useMemo(() => {
+    const seen = new Map<string, string>();
+    availableItems.forEach((item) => {
+      if (!seen.has(item.sku_id)) seen.set(item.sku_id, item.sku?.name ?? item.sku_id);
+    });
+    return Array.from(seen, ([sku_id, name]) => ({ sku_id, name }));
+  }, [availableItems]);
+
+  // Batches of the selected item available at the warehouse.
+  const batchOptions = useMemo(
+    () => availableItems.filter((item) => item.sku_id === skuId),
     [availableItems, skuId]
   );
+
+  const selectedItem = useMemo(
+    () => availableItems.find((item) => item.sku_id === skuId && item.batch_lot === batchLot),
+    [availableItems, skuId, batchLot]
+  );
+
+  function handleWarehouseChange(value: string) {
+    setWarehouseId(value || '');
+    setSkuId('');
+    setBatchLot('');
+  }
+
+  function handleSkuChange(value: string) {
+    setSkuId(value || '');
+    const batches = availableItems.filter((item) => item.sku_id === value);
+    setBatchLot(batches.length === 1 ? batches[0].batch_lot : '');
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -49,6 +77,11 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
       const qty = parseInt(quantity, 10);
       if (isNaN(qty) || qty <= 0) {
         toast.error('Please enter a valid quantity');
+        return;
+      }
+
+      if (!batchLot) {
+        toast.error('Please select a batch');
         return;
       }
 
@@ -86,7 +119,7 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="warehouse">From Warehouse</Label>
-          <Select value={warehouseId} onValueChange={(value) => setWarehouseId(value || '')} required>
+          <Select value={warehouseId} onValueChange={handleWarehouseChange} required>
             <SelectTrigger>
               <SelectValue placeholder="Select warehouse" />
             </SelectTrigger>
@@ -102,14 +135,34 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
 
         <div className="space-y-2">
           <Label htmlFor="sku">Item</Label>
-          <Select value={skuId} onValueChange={(value) => setSkuId(value || '')} required>
+          <Select value={skuId} onValueChange={handleSkuChange} required disabled={!warehouseId}>
             <SelectTrigger>
-              <SelectValue placeholder="Select item" />
+              <SelectValue placeholder={warehouseId ? 'Select item' : 'Select warehouse first'} />
             </SelectTrigger>
             <SelectContent>
-              {availableItems.map((item) => (
-                <SelectItem key={item.id} value={item.sku_id}>
-                  {item.sku?.name} — {item.available_quantity} avail ({item.batch_lot})
+              {skuOptions.map((option) => (
+                <SelectItem key={option.sku_id} value={option.sku_id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="batch">Batch/Lot</Label>
+          <Select
+            value={batchLot}
+            onValueChange={(value) => setBatchLot(value || '')}
+            disabled={!skuId || batchOptions.length === 0}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={skuId ? 'Select batch' : 'Select item first'} />
+            </SelectTrigger>
+            <SelectContent>
+              {batchOptions.map((item) => (
+                <SelectItem key={item.id} value={item.batch_lot}>
+                  {item.batch_lot} ({item.available_quantity} available)
                 </SelectItem>
               ))}
             </SelectContent>

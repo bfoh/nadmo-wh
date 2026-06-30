@@ -57,7 +57,7 @@ export default async function InventoryPage() {
               <CardTitle className="text-lg">Receive Stock</CardTitle>
             </CardHeader>
             <CardContent>
-              <StockIntakeForm warehouses={warehouses || []} skus={skus || []} />
+              <StockIntakeForm warehouses={warehouses || []} skus={skus || []} inventory={inventory || []} />
             </CardContent>
           </Card>
         </TabsContent>

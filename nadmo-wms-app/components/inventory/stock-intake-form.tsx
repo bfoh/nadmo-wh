@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -14,14 +14,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { createClient } from '@/lib/supabase/client';
-import { Sku, Warehouse } from '@/types';
+import { Inventory, Sku, Warehouse } from '@/types';
 
 interface StockIntakeFormProps {
   warehouses: Warehouse[];
   skus: Sku[];
+  inventory: Inventory[];
 }
 
-export function StockIntakeForm({ warehouses, skus }: StockIntakeFormProps) {
+export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeFormProps) {
   const router = useRouter();
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
@@ -31,6 +32,15 @@ export function StockIntakeForm({ warehouses, skus }: StockIntakeFormProps) {
   const [batchLot, setBatchLot] = useState('DEFAULT');
   const [expiryDate, setExpiryDate] = useState('');
   const [location, setLocation] = useState('');
+
+  // Existing batches for the chosen warehouse + item, offered as suggestions
+  // (you can still type a new batch number to receive a fresh lot).
+  const existingBatches = useMemo(() => {
+    const batches = inventory
+      .filter((item) => item.warehouse_id === warehouseId && item.sku_id === skuId)
+      .map((item) => item.batch_lot);
+    return Array.from(new Set(batches));
+  }, [inventory, warehouseId, skuId]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -138,7 +148,19 @@ export function StockIntakeForm({ warehouses, skus }: StockIntakeFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="batch">Batch/Lot</Label>
-          <Input id="batch" value={batchLot} onChange={(e) => setBatchLot(e.target.value)} required />
+          <Input
+            id="batch"
+            list="receive-batch-options"
+            value={batchLot}
+            onChange={(e) => setBatchLot(e.target.value)}
+            placeholder="Select or type a batch number"
+            required
+          />
+          <datalist id="receive-batch-options">
+            {existingBatches.map((batch) => (
+              <option key={batch} value={batch} />
+            ))}
+          </datalist>
         </div>
 
         <div className="space-y-2">
