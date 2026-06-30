@@ -78,12 +78,21 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
         return;
       }
 
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Your session has expired. Please sign in again.');
+        return;
+      }
+
       // Create transfer order
       const { data: transfer, error: transferError } = await supabase
         .from('transfer_orders')
         .insert({
           source_warehouse_id: sourceWarehouseId,
           destination_warehouse_id: destinationWarehouseId,
+          created_by: user.id,
           priority,
           expected_delivery_at: expectedDeliveryDate ? new Date(expectedDeliveryDate).toISOString() : null,
           notes,
