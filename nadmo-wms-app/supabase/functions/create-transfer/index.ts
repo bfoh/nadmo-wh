@@ -16,13 +16,6 @@ interface TransferPayload {
   notes?: string;
 }
 
-function determineScale(totalQuantity: number): string {
-  if (totalQuantity < 100) return 'routine';
-  if (totalQuantity < 500) return 'standard';
-  if (totalQuantity < 2000) return 'large';
-  return 'strategic';
-}
-
 serve(async (req) => {
   try {
     const authHeader = req.headers.get('Authorization');
@@ -59,10 +52,7 @@ serve(async (req) => {
       });
     }
 
-    const totalQuantity = payload.items.reduce((sum, item) => sum + item.quantity_dispatched, 0);
-    const scale = determineScale(totalQuantity);
-
-    // Create transfer order
+    // Create transfer order as a draft (routing computed on submit)
     const { data: transfer, error: transferError } = await supabaseClient
       .from('transfer_orders')
       .insert({
@@ -70,10 +60,9 @@ serve(async (req) => {
         destination_warehouse_id: payload.destination_warehouse_id,
         created_by: user.id,
         priority: payload.priority || 'routine',
-        scale,
         expected_delivery_at: payload.expected_delivery_at || null,
         notes: payload.notes || null,
-        status: 'pending_approval',
+        status: 'draft',
       })
       .select()
       .single();
@@ -90,6 +79,11 @@ serve(async (req) => {
     );
 
     if (itemsError) throw itemsError;
+
+    const { error: submitError } = await supabaseClient.rpc('submit_transfer_for_approval', {
+      p_transfer_id: transfer.id,
+    });
+    if (submitError) throw submitError;
 
     return new Response(JSON.stringify({ transfer }), {
       status: 200,

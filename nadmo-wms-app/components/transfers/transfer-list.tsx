@@ -49,7 +49,21 @@ export function TransferList({ transfers }: TransferListProps) {
               <TableCell>{transfer.source_warehouse?.name}</TableCell>
               <TableCell>{transfer.destination_warehouse?.name}</TableCell>
               <TableCell>
-                <StatusBadge status={transfer.status} />
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <StatusBadge status={transfer.status} />
+                  {transfer.escalation_count > 0 && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                      ↑{transfer.escalation_count}
+                    </span>
+                  )}
+                  {transfer.status === 'pending_approval' &&
+                    transfer.sla_due_at &&
+                    new Date(transfer.sla_due_at) < new Date() && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                        Overdue
+                      </span>
+                    )}
+                </div>
               </TableCell>
               <TableCell>{new Date(transfer.created_at).toLocaleDateString('en-GB')}</TableCell>
               <TableCell>

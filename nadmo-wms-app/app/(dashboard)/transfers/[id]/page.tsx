@@ -40,6 +40,12 @@ export default async function TransferDetailPage({ params }: TransferDetailPageP
     .select('*, sku:sku_id(*)')
     .eq('transfer_id', id);
 
+  const { data: approvalSteps } = await supabase
+    .from('transfer_approval_steps')
+    .select('*, actor:actor_id(*)')
+    .eq('transfer_id', id)
+    .order('step_number');
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -98,7 +104,7 @@ export default async function TransferDetailPage({ params }: TransferDetailPageP
             </CardContent>
           </Card>
 
-          <TransferTimeline transfer={transfer} />
+          <TransferTimeline transfer={transfer} approvalSteps={approvalSteps || []} />
         </div>
 
         <div className="space-y-6">

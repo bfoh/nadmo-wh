@@ -141,7 +141,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
         return;
       }
 
-      // Create transfer order
+      // Create transfer order as a draft
       const { data: transfer, error: transferError } = await supabase
         .from('transfer_orders')
         .insert({
@@ -151,7 +151,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
           priority,
           expected_delivery_at: expectedDeliveryDate ? new Date(expectedDeliveryDate).toISOString() : null,
           notes,
-          status: 'pending_approval',
+          status: 'draft',
         })
         .select()
         .single();
@@ -168,7 +168,13 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
 
       if (itemsError) throw itemsError;
 
-      toast.success(`Transfer ${transfer.transfer_number} created successfully`);
+      // Submit for approval — routing (scale, required tier, SLA) computed server-side now items exist
+      const { error: submitError } = await supabase.rpc('submit_transfer_for_approval', {
+        p_transfer_id: transfer.id,
+      });
+      if (submitError) throw submitError;
+
+      toast.success(`Transfer ${transfer.transfer_number} submitted for approval`);
       router.push(`/transfers/${transfer.id}`);
       router.refresh();
     } catch (error: any) {
