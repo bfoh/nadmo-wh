@@ -71,6 +71,34 @@ export function canManageUsers(role: UserRole): boolean {
   return ['dg', 'sysadmin', 'hq_admin'].includes(role);
 }
 
+const ALL_ROLES: UserRole[] = [
+  'hq_admin',
+  'hq_logistics',
+  'hq_procurement',
+  'regional_manager',
+  'district_officer',
+  'field_officer',
+  'auditor',
+  'readonly',
+  'dg',
+  'sysadmin',
+];
+
+/** Roles a given admin is allowed to assign when creating users. */
+export function assignableRoles(callerRole: UserRole): UserRole[] {
+  if (callerRole === 'sysadmin') return ALL_ROLES;
+  if (callerRole === 'dg') return ALL_ROLES.filter((r) => r !== 'sysadmin');
+  if (callerRole === 'hq_admin') return ALL_ROLES.filter((r) => r !== 'sysadmin' && r !== 'dg');
+  return [];
+}
+
+/** Whether a role must be tied to a specific warehouse it operates. */
+export function roleRequiresWarehouse(role: UserRole): boolean {
+  return ['hq_logistics', 'hq_procurement', 'regional_manager', 'district_officer', 'field_officer'].includes(
+    role
+  );
+}
+
 export function canViewAuditLog(role: UserRole): boolean {
   return ['dg', 'auditor', 'sysadmin'].includes(role);
 }
