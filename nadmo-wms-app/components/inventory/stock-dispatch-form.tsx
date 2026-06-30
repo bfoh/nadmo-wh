@@ -95,6 +95,14 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
         return;
       }
 
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Your session has expired. Please sign in again.');
+        return;
+      }
+
       const newQuantity = selectedItem.quantity - qty;
       const { error } = await supabase
         .from('inventory')
@@ -102,6 +110,18 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
         .eq('id', selectedItem.id);
 
       if (error) throw error;
+
+      // Record the movement in the inventory ledger.
+      await supabase.from('inventory_transactions').insert({
+        warehouse_id: warehouseId,
+        sku_id: skuId,
+        batch_lot: batchLot,
+        transaction_type: 'dispatch',
+        quantity_change: -qty,
+        quantity_after: newQuantity,
+        reason_notes: reason || null,
+        performed_by: user.id,
+      });
 
       toast.success('Stock dispatched successfully');
       router.refresh();

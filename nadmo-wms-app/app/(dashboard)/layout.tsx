@@ -29,6 +29,11 @@ export default async function DashboardLayout({
     redirect('/login');
   }
 
+  // Force a first-login password change for admin-created accounts.
+  if (profile.must_reset_password) {
+    redirect('/reset-password');
+  }
+
   // Get primary warehouse name
   const { data: primaryAssignments } = await supabase
     .from('user_warehouses')

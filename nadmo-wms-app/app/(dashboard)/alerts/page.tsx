@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MarkAllReadButton } from '@/components/alerts/mark-all-read-button';
 import { formatDistanceToNow } from 'date-fns';
 import {
   AlertTriangle,
@@ -97,11 +98,14 @@ export default async function AlertsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Alerts &amp; Notifications</h1>
-        <p className="text-muted-foreground">
-          Stay informed about stock levels, transfers, and emergencies
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[#0F172A]">Alerts &amp; Notifications</h1>
+          <p className="text-muted-foreground">
+            Stay informed about stock levels, transfers, and emergencies
+          </p>
+        </div>
+        <MarkAllReadButton unread={counts.unread} />
       </div>
 
       {/* Summary */}

@@ -53,6 +53,14 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
         return;
       }
 
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error('Your session has expired. Please sign in again.');
+        return;
+      }
+
       // Check if inventory row exists
       const { data: existing } = await supabase
         .from('inventory')
@@ -62,11 +70,13 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
         .eq('batch_lot', batchLot)
         .maybeSingle();
 
+      const quantityAfter = existing ? existing.quantity + qty : qty;
+
       if (existing) {
         const { error } = await supabase
           .from('inventory')
           .update({
-            quantity: existing.quantity + qty,
+            quantity: quantityAfter,
             expiry_date: expiryDate || null,
             storage_location: location || null,
           })
@@ -85,6 +95,17 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
 
         if (error) throw error;
       }
+
+      // Record the movement in the inventory ledger.
+      await supabase.from('inventory_transactions').insert({
+        warehouse_id: warehouseId,
+        sku_id: skuId,
+        batch_lot: batchLot,
+        transaction_type: 'intake',
+        quantity_change: qty,
+        quantity_after: quantityAfter,
+        performed_by: user.id,
+      });
 
       toast.success('Stock received successfully');
       router.refresh();
