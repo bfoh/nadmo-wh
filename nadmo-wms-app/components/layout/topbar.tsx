@@ -68,13 +68,11 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
         </Link>
 
         <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button variant="ghost" className="flex items-center gap-2 px-2">
-              <div className="w-8 h-8 rounded-full bg-[#006B3F] flex items-center justify-center text-white text-sm font-semibold">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <span className="hidden sm:inline text-sm font-medium">{userName.split(' ')[0]}</span>
-            </Button>
+          <DropdownMenuTrigger className="flex items-center gap-2 rounded-md px-2 py-1.5 outline-none transition-colors hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring">
+            <div className="w-8 h-8 rounded-full bg-[#006B3F] flex items-center justify-center text-white text-sm font-semibold">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+            <span className="hidden sm:inline text-sm font-medium">{userName.split(' ')[0]}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
@@ -92,6 +90,17 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={handleSignOut}
+          title="Sign out"
+          aria-label="Sign out"
+          className="text-[#CE1126] hover:text-[#CE1126]"
+        >
+          <LogOut className="w-5 h-5" />
+        </Button>
       </div>
     </header>
   );
