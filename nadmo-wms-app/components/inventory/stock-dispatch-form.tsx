@@ -57,13 +57,13 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
     [availableItems, skuId, batchLot]
   );
 
-  function handleWarehouseChange(value: string) {
+  function handleWarehouseChange(value: string | null) {
     setWarehouseId(value || '');
     setSkuId('');
     setBatchLot('');
   }
 
-  function handleSkuChange(value: string) {
+  function handleSkuChange(value: string | null) {
     setSkuId(value || '');
     const batches = availableItems.filter((item) => item.sku_id === value);
     setBatchLot(batches.length === 1 ? batches[0].batch_lot : '');
