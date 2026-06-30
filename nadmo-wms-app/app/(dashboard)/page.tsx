@@ -1,197 +1,102 @@
 import { createClient } from '@/lib/supabase/server';
-import { KpiCard } from '@/components/dashboard/kpi-card';
-import { StatusBadge } from '@/components/ui/status-badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  Warehouse,
-  Truck,
-  AlertTriangle,
-  Package,
-  TrendingUp,
-  ArrowRight,
-  Plus,
-} from 'lucide-react';
+import { ArrowRight, Plus } from 'lucide-react';
 import Link from 'next/link';
-import { canViewNationalDashboard } from '@/lib/auth';
-import { UserRole } from '@/types';
+import { loadScope } from '@/lib/scope';
+import { canCreateTransfer } from '@/lib/auth';
+import {
+  getWarehouseSummaries,
+  getRegionSummaries,
+  getKpis,
+  getRecentTransfers,
+  getRegionNameMap,
+  getScopeHeading,
+} from '@/lib/dashboard/data';
+import { KpiStrip } from '@/components/dashboard/widgets/kpi-strip';
+import { RegionStockTable } from '@/components/dashboard/widgets/region-stock-table';
+import { WarehouseStockTable } from '@/components/dashboard/widgets/warehouse-stock-table';
+import { RecentTransfers } from '@/components/dashboard/widgets/recent-transfers';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null; // the dashboard layout redirects unauthenticated users
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', user?.id)
-    .single();
+  const scope = await loadScope(supabase, user.id);
+  if (!scope) return null;
 
-  const role = profile?.role as UserRole;
-  const isNationalView = canViewNationalDashboard(role);
+  const [warehouseSummaries, regionSummaries, recentTransfers, regionNames, heading] =
+    await Promise.all([
+      getWarehouseSummaries(supabase, scope),
+      scope.level === 'warehouse'
+        ? Promise.resolve([])
+        : getRegionSummaries(supabase, scope),
+      getRecentTransfers(supabase, scope),
+      getRegionNameMap(supabase),
+      getScopeHeading(supabase, scope),
+    ]);
 
-  // Fetch KPIs
-  const { count: warehouseCount } = await supabase
-    .from('warehouses')
-    .select('*', { count: 'exact', head: true })
-    .eq('status', 'operational');
-
-  const { count: inTransitCount } = await supabase
-    .from('transfer_orders')
-    .select('*', { count: 'exact', head: true })
-    .in('status', ['in_transit', 'ready_for_dispatch']);
-
-  const { count: criticalAlertsCount } = await supabase
-    .from('notifications')
-    .select('*', { count: 'exact', head: true })
-    .eq('type', 'critical_stock')
-    .eq('is_read', false);
-
-  const { count: totalSkuCount } = await supabase
-    .from('skus')
-    .select('*', { count: 'exact', head: true })
-    .eq('is_active', true);
-
-  // Fetch recent transfer activity
-  const { data: recentTransfers } = await supabase
-    .from('transfer_orders')
-    .select('*, source_warehouse:source_warehouse_id(name), destination_warehouse:destination_warehouse_id(name)')
-    .order('created_at', { ascending: false })
-    .limit(5);
-
-  // Fetch critical alerts
-  const { data: criticalAlerts } = await supabase
-    .from('notifications')
-    .select('*')
-    .eq('type', 'critical_stock')
-    .eq('is_read', false)
-    .order('created_at', { ascending: false })
-    .limit(5);
+  const kpis = await getKpis(supabase, scope, warehouseSummaries);
+  const showNewTransfer = canCreateTransfer(scope.role);
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">
-            {isNationalView ? 'National Operations Overview' : 'Warehouse Dashboard'}
-          </h1>
-          <p className="text-muted-foreground">
-            {isNationalView
-              ? 'Real-time visibility across all NADMO warehouses'
-              : 'Manage your assigned warehouse operations'}
-          </p>
+          <h1 className="text-2xl font-bold text-[#0F172A]">{heading.title}</h1>
+          <p className="text-muted-foreground">{heading.subtitle}</p>
         </div>
         <div className="flex gap-2">
           <Link href="/transfers">
             <Button variant="outline">
               View Transfers
-              <ArrowRight className="w-4 h-4 ml-2" />
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </Link>
-          <Link href="/transfers/new">
-            <Button className="bg-[#006B3F] hover:bg-[#024F2E]">
-              <Plus className="w-4 h-4 mr-2" />
-              New Transfer
-            </Button>
-          </Link>
+          {showNewTransfer && (
+            <Link href="/transfers/new">
+              <Button className="bg-[#006B3F] hover:bg-[#024F2E]">
+                <Plus className="mr-2 h-4 w-4" />
+                New Transfer
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard
-          title="Active Warehouses"
-          value={warehouseCount ?? 0}
-          description="Operational nationwide"
-          icon={Warehouse}
-        />
-        <KpiCard
-          title="In Transit"
-          value={inTransitCount ?? 0}
-          description="Active shipments"
-          icon={Truck}
-          variant="warning"
-        />
-        <KpiCard
-          title="Critical Alerts"
-          value={criticalAlertsCount ?? 0}
-          description="Require immediate action"
-          icon={AlertTriangle}
-          variant={criticalAlertsCount && criticalAlertsCount > 0 ? 'critical' : 'default'}
-        />
-        <KpiCard
-          title="Active SKUs"
-          value={totalSkuCount ?? 0}
-          description="Items in catalogue"
-          icon={Package}
-          variant="success"
-        />
+      <KpiStrip kpis={kpis} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          {scope.level === 'national' ? (
+            <RegionStockTable regions={regionSummaries} />
+          ) : scope.level === 'regional' ? (
+            <WarehouseStockTable
+              title="Warehouses in your region"
+              warehouses={warehouseSummaries}
+              regionNames={regionNames}
+            />
+          ) : (
+            <WarehouseStockTable
+              title="Your warehouse"
+              warehouses={warehouseSummaries}
+              regionNames={regionNames}
+            />
+          )}
+        </div>
+        <RecentTransfers transfers={recentTransfers} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {recentTransfers && recentTransfers.length > 0 ? (
-              <div className="space-y-4">
-                {recentTransfers.map((transfer: any) => (
-                  <div
-                    key={transfer.id}
-                    className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                  >
-                    <div>
-                      <div className="font-medium">{transfer.transfer_number}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {transfer.source_warehouse?.name} → {transfer.destination_warehouse?.name}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <StatusBadge status={transfer.status} />
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(transfer.created_at).toLocaleDateString('en-GB')}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <TrendingUp className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                <p>No recent transfer activity</p>
-                <Link href="/transfers/new">
-                  <Button variant="link" className="mt-2">Create your first transfer</Button>
-                </Link>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold">Critical Alerts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {criticalAlerts && criticalAlerts.length > 0 ? (
-              <div className="space-y-3">
-                {criticalAlerts.map((alert: any) => (
-                  <div
-                    key={alert.id}
-                    className="p-3 rounded-lg border-l-4 border-l-[#CE1126] bg-red-50"
-                  >
-                    <div className="font-medium text-sm">{alert.title}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{alert.message}</div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8 text-muted-foreground">
-                <AlertTriangle className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                <p>No critical alerts</p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+      {scope.level === 'national' && (
+        <WarehouseStockTable
+          title="Top warehouses by available stock"
+          warehouses={warehouseSummaries}
+          regionNames={regionNames}
+          limit={10}
+        />
+      )}
     </div>
   );
 }
