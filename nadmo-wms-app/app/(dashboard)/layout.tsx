@@ -2,6 +2,11 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { AppShell } from '@/components/layout/app-shell';
 
+// Auth-dependent: render per request and never cache the Supabase fetches
+// (getUser() is keyed by URL in Next's Data Cache, so caching it would leak
+// one user's identity to everyone).
+export const dynamic = 'force-dynamic';
+
 export default async function DashboardLayout({
   children,
 }: {
