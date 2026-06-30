@@ -63,6 +63,11 @@ export function TransferList({ transfers }: TransferListProps) {
                         Overdue
                       </span>
                     )}
+                  {transfer.discrepancy_status === 'open' && (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                      Discrepancy
+                    </span>
+                  )}
                 </div>
               </TableCell>
               <TableCell>{new Date(transfer.created_at).toLocaleDateString('en-GB')}</TableCell>
