@@ -120,6 +120,8 @@ export type TransferScale = 'routine' | 'standard' | 'large' | 'strategic';
 
 export type ApprovalAction = 'pending' | 'approved' | 'rejected' | 'escalated' | 'returned';
 
+export type DiscrepancyStatus = 'none' | 'open' | 'resolved';
+
 export interface TransferApprovalStep {
   id: string;
   transfer_id: string;
@@ -154,6 +156,10 @@ export interface TransferOrder {
   rejected_by: string | null;
   rejected_at: string | null;
   rejection_reason: string | null;
+  discrepancy_status: DiscrepancyStatus;
+  discrepancy_resolved_by: string | null;
+  discrepancy_resolved_at: string | null;
+  discrepancy_resolution_note: string | null;
   approval_steps?: TransferApprovalStep[];
   vehicle_registration: string | null;
   driver_name: string | null;

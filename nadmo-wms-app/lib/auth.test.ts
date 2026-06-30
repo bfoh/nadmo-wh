@@ -8,6 +8,9 @@ import {
   canApproveAtLevel,
   canRejectAtLevel,
   canEscalateAtLevel,
+  RECEIVER_ROLES,
+  canReceiveTransfer,
+  canResolveDiscrepancy,
 } from './auth';
 
 describe('auth helpers', () => {
@@ -68,5 +71,34 @@ describe('approval chain helpers', () => {
     expect(canApproveAtLevel('auditor', 5)).toBe(false);
     expect(canRejectAtLevel('regional_manager', 3)).toBe(true);
     expect(canEscalateAtLevel('district_officer', 2)).toBe(true);
+  });
+});
+
+describe('receipt helpers', () => {
+  it('lists receiver roles', () => {
+    expect(RECEIVER_ROLES).toEqual([
+      'district_officer', 'field_officer', 'hq_logistics', 'dg', 'sysadmin',
+    ]);
+  });
+
+  it('gates who may receive', () => {
+    expect(canReceiveTransfer('district_officer')).toBe(true);
+    expect(canReceiveTransfer('field_officer')).toBe(true);
+    expect(canReceiveTransfer('hq_logistics')).toBe(true);
+    expect(canReceiveTransfer('dg')).toBe(true);
+    expect(canReceiveTransfer('sysadmin')).toBe(true);
+    expect(canReceiveTransfer('auditor')).toBe(false);
+    expect(canReceiveTransfer('regional_manager')).toBe(false);
+    expect(canReceiveTransfer('readonly')).toBe(false);
+  });
+
+  it('gates who may resolve a discrepancy', () => {
+    expect(canResolveDiscrepancy('hq_logistics')).toBe(true);
+    expect(canResolveDiscrepancy('dg')).toBe(true);
+    expect(canResolveDiscrepancy('sysadmin')).toBe(true);
+    expect(canResolveDiscrepancy('district_officer')).toBe(true);
+    expect(canResolveDiscrepancy('field_officer')).toBe(true);
+    expect(canResolveDiscrepancy('auditor')).toBe(false);
+    expect(canResolveDiscrepancy('regional_manager')).toBe(false);
   });
 });

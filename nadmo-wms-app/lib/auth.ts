@@ -146,3 +146,20 @@ export function canApproveAtLevel(role: UserRole, requiredLevel: number): boolea
 
 export const canRejectAtLevel = canApproveAtLevel;
 export const canEscalateAtLevel = canApproveAtLevel;
+
+/** Roles that may confirm receipt (DB also checks destination-warehouse assignment). */
+export const RECEIVER_ROLES: UserRole[] = [
+  'district_officer',
+  'field_officer',
+  'hq_logistics',
+  'dg',
+  'sysadmin',
+];
+
+export function canReceiveTransfer(role: UserRole): boolean {
+  return RECEIVER_ROLES.includes(role);
+}
+
+export function canResolveDiscrepancy(role: UserRole): boolean {
+  return ['district_officer', 'field_officer', 'hq_logistics', 'dg', 'sysadmin'].includes(role);
+}
