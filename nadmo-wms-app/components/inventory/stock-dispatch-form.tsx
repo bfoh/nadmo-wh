@@ -57,6 +57,14 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
     [availableItems, skuId, batchLot]
   );
 
+  // Label maps so Select triggers show names, not raw UUID values.
+  const warehouseItems = warehouses.map((w) => ({ value: w.id, label: w.name }));
+  const skuItems = skuOptions.map((o) => ({ value: o.sku_id, label: o.name }));
+  const batchItems = batchOptions.map((i) => ({
+    value: i.batch_lot,
+    label: `${i.batch_lot} (${i.available_quantity} available)`,
+  }));
+
   function handleWarehouseChange(value: string | null) {
     setWarehouseId(value || '');
     setSkuId('');
@@ -139,8 +147,8 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="warehouse">From Warehouse</Label>
-          <Select value={warehouseId} onValueChange={handleWarehouseChange} required>
-            <SelectTrigger>
+          <Select items={warehouseItems} value={warehouseId} onValueChange={handleWarehouseChange} required>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select warehouse" />
             </SelectTrigger>
             <SelectContent>
@@ -155,8 +163,8 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
 
         <div className="space-y-2">
           <Label htmlFor="sku">Item</Label>
-          <Select value={skuId} onValueChange={handleSkuChange} required disabled={!warehouseId}>
-            <SelectTrigger>
+          <Select items={skuItems} value={skuId} onValueChange={handleSkuChange} required disabled={!warehouseId}>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder={warehouseId ? 'Select item' : 'Select warehouse first'} />
             </SelectTrigger>
             <SelectContent>
@@ -172,11 +180,12 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
         <div className="space-y-2">
           <Label htmlFor="batch">Batch/Lot</Label>
           <Select
+            items={batchItems}
             value={batchLot}
             onValueChange={(value) => setBatchLot(value || '')}
             disabled={!skuId || batchOptions.length === 0}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder={skuId ? 'Select batch' : 'Select item first'} />
             </SelectTrigger>
             <SelectContent>

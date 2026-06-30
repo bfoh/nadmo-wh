@@ -42,6 +42,10 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
     return Array.from(new Set(batches));
   }, [inventory, warehouseId, skuId]);
 
+  // Label maps so Select triggers show names, not raw UUID values.
+  const warehouseItems = warehouses.map((w) => ({ value: w.id, label: w.name }));
+  const skuItems = skus.map((s) => ({ value: s.id, label: `${s.name} (${s.unit_of_measure})` }));
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -125,8 +129,8 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="warehouse">Warehouse</Label>
-          <Select value={warehouseId} onValueChange={(value) => setWarehouseId(value || '')} required>
-            <SelectTrigger>
+          <Select items={warehouseItems} value={warehouseId} onValueChange={(value) => setWarehouseId(value || '')} required>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select warehouse" />
             </SelectTrigger>
             <SelectContent>
@@ -141,8 +145,8 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
 
         <div className="space-y-2">
           <Label htmlFor="sku">Item</Label>
-          <Select value={skuId} onValueChange={(value) => setSkuId(value || '')} required>
-            <SelectTrigger>
+          <Select items={skuItems} value={skuId} onValueChange={(value) => setSkuId(value || '')} required>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select item" />
             </SelectTrigger>
             <SelectContent>

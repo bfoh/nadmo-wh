@@ -23,7 +23,7 @@ export default async function UsersPage() {
 
   const [{ data: users }, { data: warehouses }, { data: regions }] = await Promise.all([
     supabase.from('profiles').select('*').order('created_at', { ascending: false }),
-    supabase.from('warehouses').select('id, name, type, region_id').order('name'),
+    supabase.from('warehouses').select('id, name, type, region_id, code').order('name'),
     supabase.from('regions').select('id, name').order('name'),
   ]);
 

@@ -33,6 +33,7 @@ interface WarehouseOption {
   name: string;
   type: string;
   region_id: string | null;
+  code: string;
 }
 interface RegionOption {
   id: string;
@@ -73,6 +74,11 @@ export function CreateUserDialog({
 
   const needsWarehouse = role ? roleRequiresWarehouse(role) : false;
   const warehouseOptions = warehouses.filter((w) => !regionId || w.region_id === regionId);
+
+  // Label maps so the Select trigger shows readable text, not the UUID value.
+  const roleItems = assignable.map((r) => ({ value: r, label: ROLE_LABELS[r] }));
+  const regionItems = regions.map((r) => ({ value: r.id, label: r.name }));
+  const warehouseItems = warehouses.map((w) => ({ value: w.id, label: `${w.name} (${w.code})` }));
 
   function reset() {
     setFirstName('');
@@ -198,8 +204,13 @@ export function CreateUserDialog({
               </div>
               <div className="space-y-1.5">
                 <Label>Role</Label>
-                <Select value={role} onValueChange={(v) => setRole((v as UserRole) || '')} required>
-                  <SelectTrigger>
+                <Select
+                  items={roleItems}
+                  value={role}
+                  onValueChange={(v) => setRole((v as UserRole) || '')}
+                  required
+                >
+                  <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -218,13 +229,14 @@ export function CreateUserDialog({
                 <div className="space-y-1.5">
                   <Label>Region (filter)</Label>
                   <Select
+                    items={regionItems}
                     value={regionId}
                     onValueChange={(v) => {
                       setRegionId(v || '');
                       setWarehouseId('');
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="All regions" />
                     </SelectTrigger>
                     <SelectContent>
@@ -238,14 +250,18 @@ export function CreateUserDialog({
                 </div>
                 <div className="space-y-1.5">
                   <Label>Warehouse</Label>
-                  <Select value={warehouseId} onValueChange={(v) => setWarehouseId(v || '')}>
-                    <SelectTrigger>
+                  <Select
+                    items={warehouseItems}
+                    value={warehouseId}
+                    onValueChange={(v) => setWarehouseId(v || '')}
+                  >
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select warehouse" />
                     </SelectTrigger>
                     <SelectContent>
                       {warehouseOptions.map((w) => (
                         <SelectItem key={w.id} value={w.id}>
-                          {w.name}
+                          {w.name} ({w.code})
                         </SelectItem>
                       ))}
                     </SelectContent>

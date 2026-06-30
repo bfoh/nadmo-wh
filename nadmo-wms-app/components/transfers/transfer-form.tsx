@@ -45,6 +45,9 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
     Record<string, { batch_lot: string; available: number }[]>
   >({});
   const createdDate = new Date().toLocaleDateString();
+  // Label maps so Select triggers show names, not raw UUID values.
+  const warehouseItems = warehouses.map((w) => ({ value: w.id, label: w.name }));
+  const skuItems = skus.map((s) => ({ value: s.id, label: s.name }));
 
   // Load in-stock batches for the chosen source warehouse and reset batch picks.
   useEffect(() => {
@@ -180,8 +183,8 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="source">Source Warehouse</Label>
-          <Select value={sourceWarehouseId} onValueChange={(value) => setSourceWarehouseId(value || '')} required>
-            <SelectTrigger>
+          <Select items={warehouseItems} value={sourceWarehouseId} onValueChange={(value) => setSourceWarehouseId(value || '')} required>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select source" />
             </SelectTrigger>
             <SelectContent>
@@ -196,8 +199,8 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
 
         <div className="space-y-2">
           <Label htmlFor="destination">Destination Warehouse</Label>
-          <Select value={destinationWarehouseId} onValueChange={(value) => setDestinationWarehouseId(value || '')} required>
-            <SelectTrigger>
+          <Select items={warehouseItems} value={destinationWarehouseId} onValueChange={(value) => setDestinationWarehouseId(value || '')} required>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select destination" />
             </SelectTrigger>
             <SelectContent>
@@ -213,7 +216,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
         <div className="space-y-2">
           <Label htmlFor="priority">Priority</Label>
           <Select value={priority} onValueChange={(value) => setPriority(value || 'routine')}>
-            <SelectTrigger>
+            <SelectTrigger className="w-full">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -259,8 +262,8 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
           <div key={index} className="grid grid-cols-12 gap-3 items-end p-4 border rounded-lg">
             <div className="col-span-12 md:col-span-5 space-y-2">
               <Label className="text-xs">Item</Label>
-              <Select value={item.sku_id} onValueChange={(value) => handleSkuChange(index, value || '')}>
-                <SelectTrigger>
+              <Select items={skuItems} value={item.sku_id} onValueChange={(value) => handleSkuChange(index, value || '')}>
+                <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select item" />
                 </SelectTrigger>
                 <SelectContent>
@@ -290,7 +293,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
                 onValueChange={(value) => updateItem(index, 'batch_lot', value || '')}
                 disabled={!item.sku_id || (batchesBySku[item.sku_id]?.length ?? 0) === 0}
               >
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue
                     placeholder={
                       !sourceWarehouseId
