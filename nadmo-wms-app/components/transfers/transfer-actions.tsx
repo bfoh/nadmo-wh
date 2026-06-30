@@ -9,13 +9,23 @@ import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { createClient } from '@/lib/supabase/client';
 import { TransferOrder, TransferItem, Profile, UserRole } from '@/types';
-import { canApproveAtLevel, nextRung, ROLE_LABELS } from '@/lib/auth';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { canApproveAtLevel, nextRung, ROLE_LABELS, canReceiveTransfer, canResolveDiscrepancy } from '@/lib/auth';
 import {
   approveTransfer,
   rejectTransfer,
   escalateTransfer,
   resubmitTransfer,
   cancelTransfer,
+  receiveTransfer,
+  resolveDiscrepancy,
+  type ReceiveLine,
 } from '@/app/(dashboard)/transfers/[id]/actions';
 
 interface TransferActionsProps {
@@ -34,6 +44,9 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
   const [receivedQuantities, setReceivedQuantities] = useState<Record<string, string>>({});
   const [reason, setReason] = useState('');
   const [mode, setMode] = useState<null | 'reject' | 'escalate'>(null);
+  const [conditions, setConditions] = useState<Record<string, string>>({});
+  const [discrepancyReason, setDiscrepancyReason] = useState('');
+  const [resolveNote, setResolveNote] = useState('');
 
   const role = profile?.role as UserRole;
   const requiredLevel = transfer.required_level ?? 99;
@@ -97,42 +110,33 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
     });
   }
 
+  function lineFor(item: TransferItem): ReceiveLine {
+    const qtyStr = receivedQuantities[item.id];
+    const quantity_received =
+      qtyStr === undefined || qtyStr === '' ? item.quantity_dispatched : parseInt(qtyStr, 10);
+    const condition = (conditions[item.id] || 'good') as ReceiveLine['condition'];
+    return { item_id: item.id, quantity_received, condition };
+  }
+
+  const receiptHasMismatch = items.some((item) => {
+    const l = lineFor(item);
+    return l.quantity_received !== item.quantity_dispatched || l.condition !== 'good';
+  });
+
   async function handleReceive() {
-    const updates = items.map((item) => ({
-      id: item.id,
-      quantity_received: parseInt(receivedQuantities[item.id] || String(item.quantity_dispatched), 10),
-    }));
-
-    setLoading(true);
-    try {
-      for (const update of updates) {
-        const { error } = await supabase
-          .from('transfer_items')
-          .update({ quantity_received: update.quantity_received })
-          .eq('id', update.id);
-
-        if (error) throw error;
-      }
-
-      const { error } = await supabase
-        .from('transfer_orders')
-        .update({
-          status: 'received',
-          received_by: profile?.id,
-          received_at: new Date().toISOString(),
-          actual_delivery_at: new Date().toISOString(),
-        })
-        .eq('id', transfer.id);
-
-      if (error) throw error;
-
-      toast.success('Transfer received successfully');
-      router.refresh();
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to receive transfer');
-    } finally {
-      setLoading(false);
+    const lines = items.map(lineFor);
+    if (lines.some((l) => l.quantity_received > items.find((i) => i.id === l.item_id)!.quantity_dispatched)) {
+      toast.error('Received quantity cannot exceed dispatched');
+      return;
     }
+    if (receiptHasMismatch && !discrepancyReason.trim()) {
+      toast.error('A discrepancy reason is required');
+      return;
+    }
+    await runAction(
+      () => receiveTransfer(transfer.id, lines, discrepancyReason),
+      receiptHasMismatch ? 'Received with discrepancy' : 'Transfer received'
+    );
   }
 
   if (transfer.status === 'pending_approval') {
@@ -255,30 +259,95 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
   }
 
   if (transfer.status === 'in_transit') {
+    if (!canReceiveTransfer(role)) {
+      return (
+        <Card className="p-4">
+          <p className="text-sm text-muted-foreground">Awaiting receipt by destination warehouse staff.</p>
+        </Card>
+      );
+    }
     return (
       <Card className="p-4">
         <h3 className="font-medium mb-4">Confirm Receipt</h3>
         <div className="space-y-3 mb-4">
           {items.map((item) => (
-            <div key={item.id} className="grid grid-cols-2 gap-4 items-center">
+            <div key={item.id} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
               <div className="text-sm">
-                {item.sku?.name} <span className="text-muted-foreground">(dispatched {item.quantity_dispatched})</span>
+                {item.sku?.name}{' '}
+                <span className="text-muted-foreground">(dispatched {item.quantity_dispatched})</span>
               </div>
               <Input
                 type="number"
                 min="0"
+                max={item.quantity_dispatched}
                 placeholder="Received quantity"
-                value={receivedQuantities[item.id] || ''}
+                value={receivedQuantities[item.id] ?? ''}
                 onChange={(e) =>
                   setReceivedQuantities({ ...receivedQuantities, [item.id]: e.target.value })
                 }
               />
+              <Select
+                value={conditions[item.id] || 'good'}
+                onValueChange={(value) => setConditions({ ...conditions, [item.id]: value || 'good' })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="good">Good</SelectItem>
+                  <SelectItem value="damaged">Damaged</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                  <SelectItem value="missing">Missing</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           ))}
         </div>
+        {receiptHasMismatch && (
+          <div className="space-y-2 mb-4">
+            <Label>Discrepancy reason (required)</Label>
+            <Input
+              value={discrepancyReason}
+              onChange={(e) => setDiscrepancyReason(e.target.value)}
+              placeholder="Explain the shortfall or damage"
+            />
+          </div>
+        )}
         <Button onClick={handleReceive} disabled={loading} className="bg-[#10B981] hover:bg-[#059669]">
           Confirm Receipt
         </Button>
+      </Card>
+    );
+  }
+
+  if (transfer.discrepancy_status === 'open') {
+    return (
+      <Card className="p-4 space-y-3">
+        <div>
+          <h3 className="font-medium">Discrepancy reported</h3>
+          {transfer.discrepancy_reason && (
+            <p className="text-sm text-muted-foreground">Reason: {transfer.discrepancy_reason}</p>
+          )}
+        </div>
+        {canResolveDiscrepancy(role) ? (
+          <div className="space-y-2">
+            <Label>Resolution note (required)</Label>
+            <Input
+              value={resolveNote}
+              onChange={(e) => setResolveNote(e.target.value)}
+              placeholder="How was this resolved?"
+            />
+            <Button
+              disabled={loading || !resolveNote.trim()}
+              className="bg-[#006B3F] hover:bg-[#024F2E]"
+              onClick={() => runAction(() => resolveDiscrepancy(transfer.id, resolveNote), 'Discrepancy resolved')}
+            >
+              Resolve Discrepancy
+            </Button>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">Pending resolution by HQ or the source warehouse.</p>
+        )}
       </Card>
     );
   }

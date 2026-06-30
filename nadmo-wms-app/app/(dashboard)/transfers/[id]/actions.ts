@@ -44,3 +44,28 @@ export async function resubmitTransfer(id: string): Promise<ActionResult> {
 export async function cancelTransfer(id: string, reason: string): Promise<ActionResult> {
   return callRpc(id, 'cancel_transfer', { p_transfer_id: id, p_reason: reason.trim() || 'cancelled' });
 }
+
+export interface ReceiveLine {
+  item_id: string;
+  quantity_received: number;
+  condition: 'good' | 'damaged' | 'expired' | 'missing';
+}
+
+export async function receiveTransfer(
+  id: string,
+  lines: ReceiveLine[],
+  reason: string,
+  photos: string[] = []
+): Promise<ActionResult> {
+  return callRpc(id, 'receive_transfer', {
+    p_transfer_id: id,
+    p_lines: lines,
+    p_reason: reason.trim() || null,
+    p_photos: photos.length ? photos : null,
+  });
+}
+
+export async function resolveDiscrepancy(id: string, note: string): Promise<ActionResult> {
+  if (!note.trim()) return { ok: false, error: 'A resolution note is required.' };
+  return callRpc(id, 'resolve_discrepancy', { p_transfer_id: id, p_note: note.trim() });
+}
