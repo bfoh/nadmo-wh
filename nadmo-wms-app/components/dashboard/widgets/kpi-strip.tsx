@@ -1,8 +1,11 @@
 import { KpiCard } from '@/components/dashboard/kpi-card';
-import { Warehouse, Truck, Boxes, Gauge } from 'lucide-react';
+import { Warehouse, Truck, Boxes, AlertTriangle } from 'lucide-react';
 import type { DashboardKpis } from '@/lib/dashboard/data';
 
 export function KpiStrip({ kpis }: { kpis: DashboardKpis }) {
+  const lowStockVariant =
+    kpis.critical > 0 ? 'critical' : kpis.lowStock > 0 ? 'warning' : 'success';
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <KpiCard
@@ -26,11 +29,13 @@ export function KpiStrip({ kpis }: { kpis: DashboardKpis }) {
         variant="success"
       />
       <KpiCard
-        title="Capacity Used"
-        value={`${kpis.capacityPct}%`}
-        description="Of total storage volume"
-        icon={Gauge}
-        variant={kpis.capacityPct >= 90 ? 'critical' : kpis.capacityPct >= 75 ? 'warning' : 'default'}
+        title="Low Stock"
+        value={kpis.lowStock}
+        description={
+          kpis.critical > 0 ? `${kpis.critical} critical` : 'Categories below threshold'
+        }
+        icon={AlertTriangle}
+        variant={lowStockVariant}
       />
     </div>
   );

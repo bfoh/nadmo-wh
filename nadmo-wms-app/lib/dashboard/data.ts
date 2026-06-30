@@ -29,7 +29,28 @@ export interface DashboardKpis {
   warehouses: number;
   inTransit: number;
   availableUnits: number;
-  capacityPct: number;
+  lowStock: number;
+  critical: number;
+}
+
+export interface StockAlertRow {
+  warehouse_id: string;
+  warehouse_name: string;
+  category_name: string;
+  status: 'critical' | 'amber';
+  available: number;
+  min_quantity: number;
+}
+
+export interface StockHealth {
+  alerts: StockAlertRow[];
+  criticalCount: number;
+  lowCount: number;
+}
+
+export interface ScopeFilter {
+  warehouseIds?: string[];
+  regionIds?: string[];
 }
 
 /** Per-warehouse stock summary, filtered to the caller's scope. */
@@ -90,15 +111,47 @@ export async function getInTransitCount(
   return count ?? 0;
 }
 
-/** KPI tiles, derived from the scoped warehouse summaries plus a transfers count. */
-export async function getKpis(
+/** Threshold-aware stock health (critical/amber category alerts) for a scope. */
+export async function getStockHealth(
   supabase: SupabaseClient,
-  _scope: Scope,
-  summaries: WarehouseSummary[]
+  filter: ScopeFilter
+): Promise<StockHealth> {
+  let query = supabase
+    .from('v_warehouse_category_health')
+    .select('warehouse_id, warehouse_name, category_name, status, available, min_quantity')
+    .in('status', ['critical', 'amber']);
+
+  if (filter.warehouseIds) {
+    query = query.in('warehouse_id', filter.warehouseIds.length ? filter.warehouseIds : [NONE]);
+  } else if (filter.regionIds) {
+    query = query.in('region_id', filter.regionIds.length ? filter.regionIds : [NONE]);
+  }
+
+  const { data } = await query;
+  const rows = (data ?? []) as StockAlertRow[];
+  rows.sort((a, b) =>
+    a.status === b.status ? a.available - b.available : a.status === 'critical' ? -1 : 1
+  );
+  const criticalCount = rows.filter((r) => r.status === 'critical').length;
+  return { alerts: rows.slice(0, 50), criticalCount, lowCount: rows.length };
+}
+
+/** Builds the KPI tile data for a scope from summaries + transfers + health. */
+export async function getKpiData(
+  supabase: SupabaseClient,
+  summaries: WarehouseSummary[],
+  health: StockHealth,
+  warehouseId?: string
 ): Promise<DashboardKpis> {
   const stock = computeStockKpis(summaries);
-  const inTransit = await getInTransitCount(supabase);
-  return { ...stock, inTransit };
+  const inTransit = await getInTransitCount(supabase, warehouseId);
+  return {
+    warehouses: stock.warehouses,
+    availableUnits: stock.availableUnits,
+    inTransit,
+    lowStock: health.lowCount,
+    critical: health.criticalCount,
+  };
 }
 
 /** Transfers awaiting approval that are visible to the caller (RLS-scoped). */
