@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -38,12 +38,51 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState('');
   const [notes, setNotes] = useState('');
   const [items, setItems] = useState<TransferLineItem[]>([
-    { sku_id: '', quantity: '', batch_lot: 'DEFAULT' },
+    { sku_id: '', quantity: '', batch_lot: '' },
   ]);
+  // Available batches at the source warehouse, grouped by SKU id.
+  const [batchesBySku, setBatchesBySku] = useState<
+    Record<string, { batch_lot: string; available: number }[]>
+  >({});
   const createdDate = new Date().toLocaleDateString();
 
+  // Load in-stock batches for the chosen source warehouse and reset batch picks.
+  useEffect(() => {
+    if (!sourceWarehouseId) {
+      setBatchesBySku({});
+      return;
+    }
+    let active = true;
+    (async () => {
+      const { data } = await supabase
+        .from('inventory')
+        .select('sku_id, batch_lot, available_quantity')
+        .eq('warehouse_id', sourceWarehouseId)
+        .gt('available_quantity', 0)
+        .order('batch_lot');
+      if (!active) return;
+      const map: Record<string, { batch_lot: string; available: number }[]> = {};
+      (data ?? []).forEach(
+        (row: { sku_id: string; batch_lot: string; available_quantity: number }) => {
+          (map[row.sku_id] ||= []).push({
+            batch_lot: row.batch_lot,
+            available: row.available_quantity,
+          });
+        }
+      );
+      setBatchesBySku(map);
+      setItems((prev: TransferLineItem[]) =>
+        prev.map((it: TransferLineItem) => ({ ...it, batch_lot: '' }))
+      );
+    })();
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sourceWarehouseId]);
+
   function addItem() {
-    setItems([...items, { sku_id: '', quantity: '', batch_lot: 'DEFAULT' }]);
+    setItems([...items, { sku_id: '', quantity: '', batch_lot: '' }]);
   }
 
   function removeItem(index: number) {
@@ -53,6 +92,18 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
   function updateItem(index: number, field: keyof TransferLineItem, value: string) {
     const updated = [...items];
     updated[index][field] = value;
+    setItems(updated);
+  }
+
+  // When an item is picked, auto-fill its batch; if only one batch exists, select it.
+  function handleSkuChange(index: number, skuId: string) {
+    const batches = batchesBySku[skuId] ?? [];
+    const updated = [...items];
+    updated[index] = {
+      ...updated[index],
+      sku_id: skuId,
+      batch_lot: batches.length === 1 ? batches[0].batch_lot : '',
+    };
     setItems(updated);
   }
 
@@ -67,11 +118,11 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
       }
 
       const validItems = items
-        .filter((item) => item.sku_id && parseInt(item.quantity, 10) > 0)
+        .filter((item) => item.sku_id && item.batch_lot && parseInt(item.quantity, 10) > 0)
         .map((item) => ({
           sku_id: item.sku_id,
           quantity_dispatched: parseInt(item.quantity, 10),
-          batch_lot: item.batch_lot || 'DEFAULT',
+          batch_lot: item.batch_lot,
         }));
 
       if (validItems.length === 0) {
@@ -208,7 +259,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
           <div key={index} className="grid grid-cols-12 gap-3 items-end p-4 border rounded-lg">
             <div className="col-span-12 md:col-span-5 space-y-2">
               <Label className="text-xs">Item</Label>
-              <Select value={item.sku_id} onValueChange={(value) => updateItem(index, 'sku_id', value || '')}>
+              <Select value={item.sku_id} onValueChange={(value) => handleSkuChange(index, value || '')}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select item" />
                 </SelectTrigger>
@@ -234,10 +285,34 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
 
             <div className="col-span-6 md:col-span-3 space-y-2">
               <Label className="text-xs">Batch/Lot</Label>
-              <Input
+              <Select
                 value={item.batch_lot}
-                onChange={(e) => updateItem(index, 'batch_lot', e.target.value)}
-              />
+                onValueChange={(value) => updateItem(index, 'batch_lot', value || '')}
+                disabled={!item.sku_id || (batchesBySku[item.sku_id]?.length ?? 0) === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue
+                    placeholder={
+                      !sourceWarehouseId
+                        ? 'Select source first'
+                        : !item.sku_id
+                          ? 'Select item first'
+                          : (batchesBySku[item.sku_id]?.length ?? 0) === 0
+                            ? 'No stock at source'
+                            : 'Select batch'
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  {(batchesBySku[item.sku_id] ?? []).map(
+                    (b: { batch_lot: string; available: number }) => (
+                      <SelectItem key={b.batch_lot} value={b.batch_lot}>
+                        {b.batch_lot} ({b.available} available)
+                      </SelectItem>
+                    )
+                  )}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="col-span-12 md:col-span-2">
