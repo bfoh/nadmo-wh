@@ -1,4 +1,4 @@
-import { UserRole } from '@/types';
+import { UserRole, TransferScale } from '@/types';
 
 export const ROLE_LABELS: Record<UserRole, string> = {
   sysadmin: 'System Administrator',
@@ -106,3 +106,43 @@ export function canViewAuditLog(role: UserRole): boolean {
 export function canConfigureThresholds(role: UserRole): boolean {
   return ['dg', 'hq_logistics', 'hq_procurement', 'regional_manager', 'sysadmin'].includes(role);
 }
+
+/** Roles that may approve, lowest to highest authority. sysadmin clears any gate separately. */
+export const APPROVER_LADDER: UserRole[] = [
+  'district_officer',
+  'regional_manager',
+  'hq_logistics',
+  'dg',
+];
+
+const SCALE_REQUIRED_ROLE: Record<TransferScale, UserRole> = {
+  routine: 'district_officer',
+  standard: 'regional_manager',
+  large: 'hq_logistics',
+  strategic: 'dg',
+};
+
+/** Starting authority level for a transfer of the given scale. */
+export function requiredLevelForScale(scale: TransferScale): number {
+  return ROLE_HIERARCHY[SCALE_REQUIRED_ROLE[scale]];
+}
+
+/** Next ladder rung strictly above `level`, capped at dg(8). */
+export function nextRung(level: number): number {
+  const ladderLevels = APPROVER_LADDER.map((r) => ROLE_HIERARCHY[r]);
+  return ladderLevels.find((l) => l > level) ?? ROLE_HIERARCHY.dg;
+}
+
+/** Whether the role is an approver tier (ladder member or sysadmin). */
+export function isApproverRole(role: UserRole): boolean {
+  return role === 'sysadmin' || APPROVER_LADDER.includes(role);
+}
+
+/** Whether the role may clear a gate currently set to `requiredLevel`. */
+export function canApproveAtLevel(role: UserRole, requiredLevel: number): boolean {
+  if (role === 'sysadmin') return true;
+  return isApproverRole(role) && ROLE_HIERARCHY[role] >= requiredLevel;
+}
+
+export const canRejectAtLevel = canApproveAtLevel;
+export const canEscalateAtLevel = canApproveAtLevel;

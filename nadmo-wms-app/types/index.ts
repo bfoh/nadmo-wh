@@ -110,10 +110,30 @@ export type TransferStatus =
   | 'in_transit'
   | 'received'
   | 'discrepancy'
+  | 'rejected'
   | 'cancelled'
   | 'overdue';
 
 export type TransferPriority = 'routine' | 'urgent' | 'emergency';
+
+export type TransferScale = 'routine' | 'standard' | 'large' | 'strategic';
+
+export type ApprovalAction = 'pending' | 'approved' | 'rejected' | 'escalated' | 'returned';
+
+export interface TransferApprovalStep {
+  id: string;
+  transfer_id: string;
+  step_number: number;
+  required_level: number;
+  action: ApprovalAction;
+  actor_id: string | null;
+  actor_role: UserRole | null;
+  reason: string | null;
+  sla_due_at: string | null;
+  created_at: string;
+  resolved_at: string | null;
+  actor?: Profile;
+}
 
 export interface TransferOrder {
   id: string;
@@ -124,9 +144,17 @@ export interface TransferOrder {
   created_at: string;
   status: TransferStatus;
   priority: TransferPriority;
-  scale: 'routine' | 'standard' | 'large' | 'strategic';
+  scale: TransferScale;
   approved_by: string | null;
   approved_at: string | null;
+  required_level: number | null;
+  sla_due_at: string | null;
+  escalation_count: number;
+  submitted_at: string | null;
+  rejected_by: string | null;
+  rejected_at: string | null;
+  rejection_reason: string | null;
+  approval_steps?: TransferApprovalStep[];
   vehicle_registration: string | null;
   driver_name: string | null;
   driver_phone: string | null;
