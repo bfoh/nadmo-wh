@@ -62,25 +62,129 @@ export async function getRegionSummaries(
   return ((data ?? []) as RegionSummary[]).sort((a, b) => b.total_quantity - a.total_quantity);
 }
 
+/** Pure stock KPIs from a set of warehouse summaries. */
+export function computeStockKpis(summaries: WarehouseSummary[]) {
+  const warehouses = summaries.filter((w) => w.status === 'operational').length;
+  const availableUnits = summaries.reduce((sum, w) => sum + Number(w.available_quantity || 0), 0);
+  const usedVolume = summaries.reduce((sum, w) => sum + Number(w.used_volume_m3 || 0), 0);
+  const capacity = summaries.reduce((sum, w) => sum + Number(w.capacity_m3 || 0), 0);
+  const capacityPct = capacity > 0 ? Math.round((usedVolume / capacity) * 100) : 0;
+  return { warehouses, availableUnits, capacityPct };
+}
+
+/** In-transit transfer count — for one warehouse, or RLS-scoped to the caller. */
+export async function getInTransitCount(
+  supabase: SupabaseClient,
+  warehouseId?: string
+): Promise<number> {
+  let query = supabase
+    .from('transfer_orders')
+    .select('*', { count: 'exact', head: true })
+    .in('status', ['in_transit', 'ready_for_dispatch']);
+  if (warehouseId) {
+    query = query.or(
+      `source_warehouse_id.eq.${warehouseId},destination_warehouse_id.eq.${warehouseId}`
+    );
+  }
+  const { count } = await query;
+  return count ?? 0;
+}
+
 /** KPI tiles, derived from the scoped warehouse summaries plus a transfers count. */
 export async function getKpis(
   supabase: SupabaseClient,
   _scope: Scope,
   summaries: WarehouseSummary[]
 ): Promise<DashboardKpis> {
-  const warehouses = summaries.filter((w) => w.status === 'operational').length;
-  const availableUnits = summaries.reduce((sum, w) => sum + Number(w.available_quantity || 0), 0);
-  const usedVolume = summaries.reduce((sum, w) => sum + Number(w.used_volume_m3 || 0), 0);
-  const capacity = summaries.reduce((sum, w) => sum + Number(w.capacity_m3 || 0), 0);
-  const capacityPct = capacity > 0 ? Math.round((usedVolume / capacity) * 100) : 0;
+  const stock = computeStockKpis(summaries);
+  const inTransit = await getInTransitCount(supabase);
+  return { ...stock, inTransit };
+}
 
-  // In-transit transfers visible to the caller (RLS already scopes this).
-  const { count: inTransit } = await supabase
+/** Transfers awaiting approval that are visible to the caller (RLS-scoped). */
+export async function getPendingApprovals(supabase: SupabaseClient) {
+  const { data } = await supabase
     .from('transfer_orders')
-    .select('*', { count: 'exact', head: true })
-    .in('status', ['in_transit', 'ready_for_dispatch']);
+    .select(
+      '*, source_warehouse:source_warehouse_id(name), destination_warehouse:destination_warehouse_id(name)'
+    )
+    .eq('status', 'pending_approval')
+    .order('created_at', { ascending: true })
+    .limit(25);
+  return data ?? [];
+}
 
-  return { warehouses, inTransit: inTransit ?? 0, availableUnits, capacityPct };
+/** Recent transfers involving a specific warehouse (source or destination). */
+export async function getWarehouseRecentTransfers(
+  supabase: SupabaseClient,
+  warehouseId: string
+) {
+  const { data } = await supabase
+    .from('transfer_orders')
+    .select(
+      '*, source_warehouse:source_warehouse_id(name), destination_warehouse:destination_warehouse_id(name)'
+    )
+    .or(`source_warehouse_id.eq.${warehouseId},destination_warehouse_id.eq.${warehouseId}`)
+    .order('created_at', { ascending: false })
+    .limit(6);
+  return data ?? [];
+}
+
+export interface HierWarehouse {
+  id: string;
+  name: string;
+  type: 'hq' | 'regional' | 'district';
+  available: number;
+  capacityPct: number | null;
+}
+
+export interface HierRegion {
+  id: string;
+  name: string;
+  available: number;
+  total: number;
+  warehouses: HierWarehouse[];
+}
+
+/** Builds the National -> Region -> Warehouse tree for the drill-down widget. */
+export function buildHierarchy(
+  regions: RegionSummary[],
+  warehouses: WarehouseSummary[]
+): { regions: HierRegion[]; national: HierWarehouse[] } {
+  const byRegion = new Map<string, HierWarehouse[]>();
+  const national: HierWarehouse[] = [];
+
+  for (const w of warehouses) {
+    const hw: HierWarehouse = {
+      id: w.warehouse_id,
+      name: w.warehouse_name,
+      type: w.warehouse_type,
+      available: Number(w.available_quantity || 0),
+      capacityPct:
+        w.capacity_m3 && Number(w.capacity_m3) > 0
+          ? Math.min(100, Math.round((Number(w.used_volume_m3) / Number(w.capacity_m3)) * 100))
+          : null,
+    };
+    if (w.region_id) {
+      const list = byRegion.get(w.region_id) ?? [];
+      list.push(hw);
+      byRegion.set(w.region_id, list);
+    } else {
+      national.push(hw);
+    }
+  }
+
+  const regionNodes: HierRegion[] = regions
+    .filter((r) => (byRegion.get(r.region_id)?.length ?? 0) > 0)
+    .map((r) => ({
+      id: r.region_id,
+      name: r.region_name,
+      available: Number(r.available_quantity || 0),
+      total: Number(r.total_quantity || 0),
+      warehouses: (byRegion.get(r.region_id) ?? []).sort((a, b) => b.available - a.available),
+    }));
+
+  return { regions: regionNodes, national };
 }
 
 /** Recent transfer activity visible to the caller (RLS scopes it). */
