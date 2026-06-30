@@ -3,6 +3,7 @@ import { UserRole } from '@/types';
 export const ROLE_LABELS: Record<UserRole, string> = {
   sysadmin: 'System Administrator',
   dg: 'Director-General',
+  hq_admin: 'HQ Administrator',
   hq_logistics: 'HQ Logistics Officer',
   hq_procurement: 'HQ Procurement Officer',
   regional_manager: 'Regional Manager',
@@ -19,17 +20,32 @@ export const ROLE_HIERARCHY: Record<UserRole, number> = {
   regional_manager: 3,
   hq_procurement: 4,
   hq_logistics: 5,
-  auditor: 6,
-  dg: 7,
-  sysadmin: 8,
+  hq_admin: 6,
+  auditor: 7,
+  dg: 8,
+  sysadmin: 9,
 };
+
+export type ScopeLevel = 'national' | 'regional' | 'warehouse';
+
+/** Roles with a nationwide oversight view (all regions, districts and warehouses). */
+export function canSeeNational(role: UserRole): boolean {
+  return ['dg', 'hq_admin', 'hq_logistics', 'hq_procurement', 'auditor', 'sysadmin'].includes(role);
+}
+
+/** The oversight breadth a role rolls up to. */
+export function scopeLevel(role: UserRole): ScopeLevel {
+  if (canSeeNational(role)) return 'national';
+  if (role === 'regional_manager') return 'regional';
+  return 'warehouse';
+}
 
 export function hasRole(role: UserRole, requiredRole: UserRole): boolean {
   return ROLE_HIERARCHY[role] >= ROLE_HIERARCHY[requiredRole];
 }
 
 export function canViewNationalDashboard(role: UserRole): boolean {
-  return ['dg', 'hq_logistics', 'hq_procurement', 'auditor', 'sysadmin'].includes(role);
+  return canSeeNational(role);
 }
 
 export function canCreateTransfer(role: UserRole): boolean {
@@ -52,7 +68,7 @@ export function canApproveTransfer(role: UserRole, scale: string): boolean {
 }
 
 export function canManageUsers(role: UserRole): boolean {
-  return ['dg', 'sysadmin'].includes(role);
+  return ['dg', 'sysadmin', 'hq_admin'].includes(role);
 }
 
 export function canViewAuditLog(role: UserRole): boolean {

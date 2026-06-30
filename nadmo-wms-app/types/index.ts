@@ -1,6 +1,7 @@
 export type UserRole =
   | 'sysadmin'
   | 'dg'
+  | 'hq_admin'
   | 'hq_logistics'
   | 'hq_procurement'
   | 'regional_manager'
