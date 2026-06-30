@@ -134,7 +134,7 @@ export default async function AlertsPage() {
                 return (
                   <div
                     key={alert.id}
-                    className={`flex items-start gap-4 rounded-lg border border-l-4 p-4 transition-colors hover:bg-muted/40 ${styles.accent} ${
+                    className={`flex items-start gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/40 ${
                       alert.is_read ? 'bg-white' : styles.cardBg
                     }`}
                   >
