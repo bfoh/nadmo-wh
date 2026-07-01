@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { createClient } from '@/lib/supabase/client';
 import { Sku, Warehouse } from '@/types';
-import { X, Plus } from 'lucide-react';
+import { X, Plus, Loader2 } from 'lucide-react';
 
 interface TransferLineItem {
   sku_id: string;
@@ -326,7 +326,13 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
 
             <div className="col-span-12 md:col-span-2">
               {items.length > 1 && (
-                <Button type="button" variant="ghost" size="sm" onClick={() => removeItem(index)}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  aria-label={`Remove item ${index + 1}`}
+                  onClick={() => removeItem(index)}
+                >
                   <X className="w-4 h-4" />
                 </Button>
               )}
@@ -335,8 +341,9 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
         ))}
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90">
-        {loading ? 'Creating...' : 'Create Transfer Order'}
+      <Button type="submit" size="lg" disabled={loading}>
+        {loading && <Loader2 className="size-4 animate-spin" />}
+        {loading ? 'Creating…' : 'Create Transfer Order'}
       </Button>
     </form>
   );

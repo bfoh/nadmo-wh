@@ -134,7 +134,7 @@ export function CreateUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger render={<Button className="bg-primary hover:bg-primary/90" />}>
+      <DialogTrigger render={<Button />}>
         <Plus className="mr-2 h-4 w-4" />
         Create User
       </DialogTrigger>
@@ -167,7 +167,7 @@ export function CreateUserDialog({
               </Button>
             </div>
             <DialogFooter>
-              <Button onClick={() => onOpenChange(false)} className="bg-primary hover:bg-primary/90">
+              <Button onClick={() => onOpenChange(false)}>
                 Done
               </Button>
             </DialogFooter>
@@ -279,6 +279,7 @@ export function CreateUserDialog({
                   variant="outline"
                   size="icon"
                   title="Generate new password"
+                  aria-label="Generate new password"
                   onClick={() => setPassword(generatePassword())}
                 >
                   <RefreshCw className="h-4 w-4" />
@@ -288,7 +289,7 @@ export function CreateUserDialog({
 
             <DialogFooter>
               <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
-              <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90">
+              <Button type="submit" disabled={loading}>
                 {loading ? 'Creating…' : 'Create User'}
               </Button>
             </DialogFooter>

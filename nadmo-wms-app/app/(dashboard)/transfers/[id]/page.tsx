@@ -51,7 +51,7 @@ export default async function TransferDetailPage({ params }: TransferDetailPageP
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <Link href="/transfers">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" aria-label="Back to transfers">
               <ArrowLeft className="w-5 h-5" />
             </Button>
           </Link>

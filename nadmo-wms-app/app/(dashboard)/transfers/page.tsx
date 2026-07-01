@@ -24,7 +24,7 @@ export default async function TransfersPage() {
           <p className="text-muted-foreground">Manage inter-warehouse stock movements</p>
         </div>
         <Link href="/transfers/new">
-          <Button className="bg-primary hover:bg-primary/90">
+          <Button>
             <Plus className="w-4 h-4 mr-2" />
             New Transfer
           </Button>

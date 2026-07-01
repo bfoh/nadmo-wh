@@ -15,13 +15,13 @@ export default async function NewTransferPage() {
     <div className="space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/transfers">
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="Back to transfers">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
         <div>
           <h1 className="text-2xl font-bold text-ink">Create Transfer Order</h1>
-          <p className="text-muted-foreground">Move stock between NADMO warehouses</p>
+          <p className="text-ink-subtle">Move stock between NADMO warehouses</p>
         </div>
       </div>
 
