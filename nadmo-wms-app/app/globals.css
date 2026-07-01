@@ -254,12 +254,18 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    -webkit-tap-highlight-color: transparent; /* kill blue flash on Android */
   }
   html {
     @apply font-sans;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+  }
+  /* dvh fallback for older iOS that doesn't support dvh */
+  @supports not (min-height: 100dvh) {
+    html { min-height: -webkit-fill-available; }
+    body { min-height: -webkit-fill-available; }
   }
   body {
     @apply bg-background text-foreground;
@@ -349,6 +355,10 @@
 @utility scroll-momentum {
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+}
+/* Full viewport height minus safe areas — for map and other full-bleed views. */
+@utility h-dvh-safe {
+  height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
 }
 
 @layer components {

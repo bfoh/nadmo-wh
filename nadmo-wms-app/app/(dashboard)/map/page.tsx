@@ -17,7 +17,7 @@ export default async function MapPage() {
         <p className="text-muted-foreground">Geographic view of all NADMO warehouses</p>
       </div>
 
-      <Card className="h-[600px]">
+      <Card className="h-[calc(100dvh-12rem)] min-h-[400px]">
         <CardHeader>
           <CardTitle className="text-lg">Warehouse Locations</CardTitle>
         </CardHeader>

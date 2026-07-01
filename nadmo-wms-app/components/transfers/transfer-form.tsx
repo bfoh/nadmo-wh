@@ -287,6 +287,7 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
               <Input
                 type="number"
                 min="1"
+                inputMode="numeric"
                 value={item.quantity}
                 onChange={(e) => updateItem(index, 'quantity', e.target.value)}
               />
@@ -341,10 +342,12 @@ export function TransferForm({ warehouses, skus }: TransferFormProps) {
         ))}
       </div>
 
-      <Button type="submit" size="lg" disabled={loading}>
-        {loading && <Loader2 className="size-4 animate-spin" />}
-        {loading ? 'Creating…' : 'Create Transfer Order'}
-      </Button>
+      <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] lg:bottom-auto bg-background py-3 -mx-4 px-4 border-t border-border lg:static lg:border-0 lg:mx-0 lg:px-0 lg:py-0">
+        <Button type="submit" size="lg" disabled={loading} className="w-full lg:w-auto active:scale-[0.98] transition-transform">
+          {loading && <Loader2 className="size-4 animate-spin" />}
+          {loading ? 'Creating…' : 'Create Transfer Order'}
+        </Button>
+      </div>
     </form>
   );
 }
