@@ -3,7 +3,20 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bell, Menu, User, LogOut, ClipboardList, Users, Settings, Map, type LucideIcon } from 'lucide-react';
+import {
+  Bell,
+  Menu,
+  User,
+  LogOut,
+  LayoutDashboard,
+  Package,
+  Truck,
+  ClipboardList,
+  Users,
+  Settings,
+  Map,
+  type LucideIcon,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -35,12 +48,32 @@ type DrawerNavItem = {
   permission?: (role: UserRole) => boolean;
 };
 
-// Secondary / admin items live in the mobile drawer — primary items are in the bottom tab bar.
-const drawerNavItems: DrawerNavItem[] = [
-  { label: 'Map', href: '/map', icon: Map },
-  { label: 'Audit Log', href: '/audit', icon: ClipboardList, permission: canViewAuditLog },
-  { label: 'Users', href: '/users', icon: Users, permission: canManageUsers },
-  { label: 'Settings', href: '/settings', icon: Settings, permission: canManageUsers },
+// The drawer is the full menu (bottom tab bar is quick-access to the top 4).
+// Grouped like the desktop sidebar so it's always populated and complete.
+const drawerSections: { heading: string; items: DrawerNavItem[] }[] = [
+  {
+    heading: 'Operations',
+    items: [
+      { label: 'Dashboard', href: '/', icon: LayoutDashboard },
+      { label: 'Inventory', href: '/inventory', icon: Package },
+      { label: 'Transfers', href: '/transfers', icon: Truck },
+      { label: 'Map', href: '/map', icon: Map },
+    ],
+  },
+  {
+    heading: 'Oversight',
+    items: [
+      { label: 'Alerts', href: '/alerts', icon: Bell },
+      { label: 'Audit Log', href: '/audit', icon: ClipboardList, permission: canViewAuditLog },
+    ],
+  },
+  {
+    heading: 'Administration',
+    items: [
+      { label: 'Users', href: '/users', icon: Users, permission: canManageUsers },
+      { label: 'Settings', href: '/settings', icon: Settings, permission: canManageUsers },
+    ],
+  },
 ];
 
 export function Topbar({ role, userName, warehouseName, notificationCount = 0 }: TopbarProps) {
@@ -48,6 +81,7 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
   const pathname = usePathname();
   const supabase = createClient();
   const [scrolled, setScrolled] = useState(false);
+  const [navOpen, setNavOpen] = useState(false);
 
   // Compact-on-scroll: shrink topbar height after 40px of scroll.
   useEffect(() => {
@@ -67,9 +101,12 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
     router.refresh();
   }
 
-  const visibleDrawerItems = drawerNavItems.filter(
-    (item) => !item.permission || item.permission(role)
-  );
+  const visibleSections = drawerSections
+    .map((section) => ({
+      ...section,
+      items: section.items.filter((item) => !item.permission || item.permission(role)),
+    }))
+    .filter((section) => section.items.length > 0);
 
   return (
     <header
@@ -79,14 +116,16 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
       )}
     >
       <div className="flex items-center gap-3">
-        {/* Mobile hamburger — opens secondary nav drawer */}
-        <Sheet>
-          <SheetTrigger className="lg:hidden">
-            <Button variant="ghost" size="icon" aria-label="Open navigation">
-              <Menu className="size-5" />
-            </Button>
+        {/* Mobile hamburger — full navigation drawer */}
+        <Sheet open={navOpen} onOpenChange={setNavOpen}>
+          <SheetTrigger
+            render={
+              <Button variant="ghost" size="icon" aria-label="Open navigation" className="lg:hidden" />
+            }
+          >
+            <Menu className="size-5" />
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-64 pt-safe">
+          <SheetContent side="left" className="flex flex-col p-0 w-72 pt-safe">
             <SheetHeader className="px-5 pt-5 pb-3 border-b border-border">
               <div className="flex items-center gap-2.5">
                 <NadmoLogo className="h-8 w-8 shrink-0" />
@@ -95,51 +134,81 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
                 </SheetTitle>
               </div>
             </SheetHeader>
-            <nav className="px-3 py-4 space-y-1">
-              <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-faint">
-                More
-              </div>
-              {visibleDrawerItems.map((item) => {
-                const Icon = item.icon;
-                const isActive =
-                  item.href === '/'
-                    ? pathname === '/'
-                    : pathname === item.href || pathname.startsWith(`${item.href}/`);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={cn(
-                      'group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors duration-150',
-                      isActive
-                        ? 'bg-accent text-ink'
-                        : 'text-ink-subtle hover:bg-accent/60 hover:text-ink'
-                    )}
-                  >
-                    {isActive && (
-                      <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
-                    )}
-                    <Icon
-                      className={cn(
-                        'size-4 shrink-0 transition-colors',
-                        isActive ? 'text-primary' : 'text-ink-faint group-hover:text-ink-subtle'
-                      )}
-                    />
-                    {item.label}
-                  </Link>
-                );
-              })}
+
+            <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scroll-momentum">
+              {visibleSections.map((section) => (
+                <div key={section.heading} className="space-y-1">
+                  <div className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.13em] text-ink-faint">
+                    {section.heading}
+                  </div>
+                  {section.items.map((item) => {
+                    const Icon = item.icon;
+                    const isActive =
+                      item.href === '/'
+                        ? pathname === '/'
+                        : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setNavOpen(false)}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={cn(
+                          'group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors duration-150',
+                          isActive
+                            ? 'bg-accent text-ink'
+                            : 'text-ink-subtle hover:bg-accent/60 hover:text-ink'
+                        )}
+                      >
+                        {isActive && (
+                          <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary" />
+                        )}
+                        <Icon
+                          className={cn(
+                            'size-4 shrink-0 transition-colors',
+                            isActive ? 'text-primary' : 'text-ink-faint group-hover:text-ink-subtle'
+                          )}
+                        />
+                        {item.label}
+                      </Link>
+                    );
+                  })}
+                </div>
+              ))}
             </nav>
-            {/* Signed-in card at bottom of drawer */}
-            <div className="absolute inset-x-0 bottom-0 m-3 mb-[calc(0.75rem+env(safe-area-inset-bottom))] rounded-lg bg-accent/50 p-3">
-              <div className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
-                Signed in
+
+            {/* Account footer */}
+            <div className="border-t border-border p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] space-y-2">
+              <div className="rounded-lg bg-accent/50 p-3">
+                <div className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
+                  Signed in
+                </div>
+                <div className="mt-0.5 truncate text-sm font-medium text-ink">{userName}</div>
+                {warehouseName && (
+                  <div className="mt-0.5 truncate text-xs text-ink-subtle">{warehouseName}</div>
+                )}
               </div>
-              <div className="mt-0.5 truncate text-sm font-medium text-ink">{userName}</div>
-              {warehouseName && (
-                <div className="mt-0.5 truncate text-xs text-ink-subtle">{warehouseName}</div>
-              )}
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setNavOpen(false);
+                    router.push('/profile');
+                  }}
+                >
+                  <User className="size-4" />
+                  Profile
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="flex-1 text-critical hover:text-critical"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="size-4" />
+                  Sign out
+                </Button>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
