@@ -7,7 +7,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
@@ -75,10 +74,10 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
             <span className="hidden sm:inline text-sm font-medium">{userName.split(' ')[0]}</span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <div className="font-semibold">{userName}</div>
-              <div className="text-xs text-muted-foreground font-normal">{warehouseName}</div>
-            </DropdownMenuLabel>
+            <div className="px-2 py-1.5">
+              <div className="text-sm font-semibold text-[#0F172A]">{userName}</div>
+              <div className="text-xs text-muted-foreground">{warehouseName}</div>
+            </div>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => router.push('/profile')} className="cursor-pointer">
               <User className="w-4 h-4 mr-2" />
