@@ -116,8 +116,8 @@ export default async function AlertsPage() {
       {/* Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {summary.map((s) => (
-          <Card key={s.label} size="sm" tone={summaryTone[s.label]}>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.09em] text-ink-faint">
+          <Card key={s.label} size="sm" tone={summaryTone[s.label]} className="px-5">
+            <div className="text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-muted">
               {s.label}
             </div>
             <div className={`mt-2 font-display text-3xl font-semibold tracking-[-0.02em] nums ${s.tint}`}>
