@@ -40,25 +40,25 @@ const FALLBACK_META: TypeMeta = { severity: 'info', label: 'Notification', icon:
 
 const SEVERITY_STYLES: Record<
   Severity,
-  { accent: string; iconBox: string; chip: string; cardBg: string }
+  { accent: string; iconBox: string; chip: string; unreadBg: string }
 > = {
   critical: {
-    accent: 'border-l-[#CE1126]',
-    iconBox: 'bg-red-100 text-[#CE1126]',
-    chip: 'bg-red-50 text-[#CE1126] ring-1 ring-inset ring-red-200',
-    cardBg: 'bg-red-50/40',
+    accent: 'bg-critical',
+    iconBox: 'bg-critical-soft text-critical',
+    chip: 'bg-critical-soft text-critical-foreground border border-critical-border',
+    unreadBg: 'bg-critical-soft/40',
   },
   warning: {
-    accent: 'border-l-[#F59E0B]',
-    iconBox: 'bg-amber-100 text-amber-700',
-    chip: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200',
-    cardBg: 'bg-amber-50/40',
+    accent: 'bg-strained',
+    iconBox: 'bg-strained-soft text-strained',
+    chip: 'bg-strained-soft text-strained-foreground border border-strained-border',
+    unreadBg: 'bg-strained-soft/40',
   },
   info: {
-    accent: 'border-l-[#006B3F]',
-    iconBox: 'bg-green-100 text-[#006B3F]',
-    chip: 'bg-green-50 text-[#006B3F] ring-1 ring-inset ring-green-200',
-    cardBg: 'bg-white',
+    accent: 'bg-info',
+    iconBox: 'bg-info-soft text-info',
+    chip: 'bg-info-soft text-info-foreground border border-info-border',
+    unreadBg: 'bg-info-soft/30',
   },
 };
 
@@ -90,18 +90,23 @@ export default async function AlertsPage() {
   };
 
   const summary: { label: string; value: number; tint: string }[] = [
-    { label: 'Total', value: counts.total, tint: 'text-[#0F172A]' },
-    { label: 'Critical', value: counts.critical, tint: 'text-[#CE1126]' },
-    { label: 'Warnings', value: counts.warning, tint: 'text-amber-600' },
-    { label: 'Unread', value: counts.unread, tint: 'text-[#006B3F]' },
+    { label: 'Total', value: counts.total, tint: 'text-ink' },
+    { label: 'Critical', value: counts.critical, tint: 'text-critical' },
+    { label: 'Warnings', value: counts.warning, tint: 'text-strained' },
+    { label: 'Unread', value: counts.unread, tint: 'text-primary' },
   ];
+
+  const summaryTone: Record<string, 'critical' | 'strained' | 'ready' | undefined> = {
+    Critical: counts.critical > 0 ? 'critical' : undefined,
+    Warnings: counts.warning > 0 ? 'strained' : undefined,
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">Alerts &amp; Notifications</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl font-bold text-ink">Alerts &amp; Notifications</h1>
+          <p className="text-ink-subtle">
             Stay informed about stock levels, transfers, and emergencies
           </p>
         </div>
@@ -111,20 +116,20 @@ export default async function AlertsPage() {
       {/* Summary */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {summary.map((s) => (
-          <Card key={s.label}>
-            <CardContent className="p-4">
-              <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {s.label}
-              </div>
-              <div className={`mt-1 text-3xl font-bold ${s.tint}`}>{s.value}</div>
-            </CardContent>
+          <Card key={s.label} size="sm" tone={summaryTone[s.label]}>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.09em] text-ink-faint">
+              {s.label}
+            </div>
+            <div className={`mt-2 font-display text-3xl font-semibold tracking-[-0.02em] nums ${s.tint}`}>
+              {s.value}
+            </div>
           </Card>
         ))}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">All Notifications</CardTitle>
+          <CardTitle>All Notifications</CardTitle>
         </CardHeader>
         <CardContent>
           {list.length > 0 ? (
@@ -138,10 +143,13 @@ export default async function AlertsPage() {
                 return (
                   <div
                     key={alert.id}
-                    className={`flex items-start gap-4 rounded-lg border p-4 transition-colors hover:bg-muted/40 ${
-                      alert.is_read ? 'bg-white' : styles.cardBg
+                    className={`relative flex items-start gap-4 overflow-hidden rounded-lg border border-border p-4 transition-colors hover:bg-muted/40 ${
+                      alert.is_read ? 'bg-card' : styles.unreadBg
                     }`}
                   >
+                    {!alert.is_read && (
+                      <span className={`absolute inset-y-0 left-0 w-1 ${styles.accent}`} aria-hidden />
+                    )}
                     <div
                       className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${styles.iconBox}`}
                     >
@@ -150,15 +158,15 @@ export default async function AlertsPage() {
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[#0F172A]">{alert.title}</span>
+                        <span className="font-semibold text-ink">{alert.title}</span>
                         {!alert.is_read && (
-                          <span className="inline-flex items-center rounded-full bg-[#006B3F] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                          <span className="inline-flex items-center rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
                             New
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-sm text-muted-foreground">{alert.message}</p>
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <p className="mt-1 text-sm text-ink-subtle">{alert.message}</p>
+                      <div className="mt-2 flex items-center gap-1.5 text-xs text-ink-faint">
                         <Clock className="h-3.5 w-3.5" />
                         <time dateTime={created.toISOString()} title={created.toLocaleString('en-GB')}>
                           {formatDistanceToNow(created, { addSuffix: true })}
@@ -167,7 +175,7 @@ export default async function AlertsPage() {
                     </div>
 
                     <span
-                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${styles.chip}`}
+                      className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium ${styles.chip}`}
                     >
                       {SEVERITY_LABEL[meta.severity]}
                     </span>
@@ -180,7 +188,7 @@ export default async function AlertsPage() {
               <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted">
                 <BellOff className="h-6 w-6 text-muted-foreground" />
               </div>
-              <p className="font-medium text-[#0F172A]">You&apos;re all caught up</p>
+              <p className="font-medium text-ink">You&apos;re all caught up</p>
               <p className="text-sm text-muted-foreground">No notifications to show right now.</p>
             </div>
           )}

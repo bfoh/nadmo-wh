@@ -34,7 +34,7 @@ export default async function AuditPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Audit Trail</h1>
+        <h1 className="text-2xl font-bold text-ink">Audit Trail</h1>
         <p className="text-muted-foreground">Immutable record of all system activities</p>
       </div>
 

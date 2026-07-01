@@ -57,12 +57,12 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-4 text-center">
           <NadmoLogo className="mx-auto h-16 w-16" />
           <div>
-            <CardTitle className="text-2xl font-bold text-[#0F172A]">Set a new password</CardTitle>
+            <CardTitle className="text-2xl font-bold text-ink">Set a new password</CardTitle>
             <CardDescription>
               Your account was created with a temporary password. Choose a new one to continue.
             </CardDescription>
@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
 
             <Button
               type="submit"
-              className="w-full bg-[#006B3F] hover:bg-[#024F2E]"
+              className="w-full bg-primary hover:bg-primary/90"
               disabled={loading}
             >
               {loading ? 'Saving…' : 'Set password & continue'}

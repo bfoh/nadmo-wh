@@ -63,7 +63,7 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0F172A]">System Settings</h1>
+        <h1 className="text-2xl font-bold text-ink">System Settings</h1>
         <p className="text-muted-foreground">Configure platform settings and thresholds</p>
       </div>
 

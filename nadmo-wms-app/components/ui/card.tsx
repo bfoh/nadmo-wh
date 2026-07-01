@@ -2,17 +2,36 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+// Readiness rail — the signature. A card can carry a left-edge status accent
+// that speaks the disaster-response language before a single word is read.
+const RAIL: Record<string, string> = {
+  ready: "before:bg-ready",
+  strained: "before:bg-strained",
+  critical: "before:bg-critical",
+  info: "before:bg-info",
+}
+
 function Card({
   className,
   size = "default",
+  tone,
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "default" | "sm"
+  tone?: "ready" | "strained" | "critical" | "info"
+}) {
   return (
     <div
       data-slot="card"
       data-size={size}
+      data-tone={tone}
       className={cn(
-        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "group/card relative flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground elev-1 [--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        tone &&
+          cn(
+            "before:absolute before:inset-y-0 before:left-0 before:w-1 before:content-['']",
+            RAIL[tone]
+          ),
         className
       )}
       {...props}
@@ -38,7 +57,7 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card-title"
       className={cn(
-        "font-heading text-base leading-snug font-medium group-data-[size=sm]/card:text-sm",
+        "font-display text-base leading-snug font-semibold tracking-[-0.01em] text-ink group-data-[size=sm]/card:text-sm",
         className
       )}
       {...props}
@@ -50,7 +69,7 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="card-description"
-      className={cn("text-sm text-muted-foreground", className)}
+      className={cn("text-sm text-ink-subtle", className)}
       {...props}
     />
   )

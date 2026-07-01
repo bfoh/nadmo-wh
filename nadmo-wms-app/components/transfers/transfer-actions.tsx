@@ -150,7 +150,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
           <span className="font-medium">{ROLE_LABELS[ROLE_BY_LEVEL[requiredLevel] ?? 'dg']}</span>
           <span className="text-muted-foreground">· SLA due {slaLabel}</span>
           {transfer.escalation_count > 0 && (
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-strained-soft text-strained-foreground border border-strained-border">
               Escalated ×{transfer.escalation_count}
             </span>
           )}
@@ -158,7 +158,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
 
         {canApprove && mode === null && (
           <div className="flex flex-wrap gap-3">
-            <Button onClick={handleApprove} disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
+            <Button onClick={handleApprove} disabled={loading} className="bg-primary hover:bg-primary/90">
               Approve Transfer
             </Button>
             <Button onClick={() => setMode('reject')} disabled={loading} variant="outline">
@@ -179,7 +179,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             <div className="flex gap-3">
               <Button
                 disabled={loading || !reason.trim()}
-                className="bg-[#006B3F] hover:bg-[#024F2E]"
+                className="bg-primary hover:bg-primary/90"
                 onClick={() =>
                   mode === 'reject'
                     ? runAction(() => rejectTransfer(transfer.id, reason), 'Transfer rejected')
@@ -215,7 +215,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
           <div className="flex gap-3">
             <Button
               disabled={loading}
-              className="bg-[#006B3F] hover:bg-[#024F2E]"
+              className="bg-primary hover:bg-primary/90"
               onClick={() => runAction(() => resubmitTransfer(transfer.id), 'Resubmitted for approval')}
             >
               Resubmit
@@ -251,7 +251,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             <Input value={driverPhone} onChange={(e) => setDriverPhone(e.target.value)} />
           </div>
         </div>
-        <Button onClick={handleDispatch} disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
+        <Button onClick={handleDispatch} disabled={loading} className="bg-primary hover:bg-primary/90">
           Mark as In Transit
         </Button>
       </Card>
@@ -313,7 +313,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             />
           </div>
         )}
-        <Button onClick={handleReceive} disabled={loading} className="bg-[#10B981] hover:bg-[#059669]">
+        <Button onClick={handleReceive} disabled={loading} className="bg-ready hover:bg-ready/90">
           Confirm Receipt
         </Button>
       </Card>
@@ -339,7 +339,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             />
             <Button
               disabled={loading || !resolveNote.trim()}
-              className="bg-[#006B3F] hover:bg-[#024F2E]"
+              className="bg-primary hover:bg-primary/90"
               onClick={() => runAction(() => resolveDiscrepancy(transfer.id, resolveNote), 'Discrepancy resolved')}
             >
               Resolve Discrepancy

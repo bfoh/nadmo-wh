@@ -62,20 +62,20 @@ export default async function DashboardPage() {
   const actionBar = (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold text-[#0F172A]">{heading.title}</h1>
-        <p className="text-muted-foreground">{heading.subtitle}</p>
+        <h1 className="text-2xl font-bold text-ink">{heading.title}</h1>
+        <p className="text-ink-subtle">{heading.subtitle}</p>
       </div>
       <div className="flex gap-2">
         <Link href="/transfers">
           <Button variant="outline">
             View Transfers
-            <ArrowRight className="ml-2 h-4 w-4" />
+            <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </Link>
         {showNewTransfer && (
           <Link href="/transfers/new">
-            <Button className="bg-[#006B3F] hover:bg-[#024F2E]">
-              <Plus className="mr-2 h-4 w-4" />
+            <Button>
+              <Plus className="mr-1 h-4 w-4" />
               New Transfer
             </Button>
           </Link>
