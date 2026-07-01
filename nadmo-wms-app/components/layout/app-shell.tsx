@@ -37,9 +37,9 @@ export function AppShell({ children, profile, warehouseName, notificationCount }
           tabIndex={-1}
           className="flex-1 overflow-auto outline-none scroll-momentum px-safe"
         >
-          {/* pb-20 on mobile clears the bottom tab bar (56px bar + safe-area);
-              lg:pb-0 removes it on desktop where sidebar is visible. */}
-          <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8">
+          {/* Clear the fixed bottom tab bar on mobile: 56px bar + home-indicator
+              inset + breathing room. Desktop (sidebar visible) uses normal pb. */}
+          <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8 pb-[calc(4.5rem+env(safe-area-inset-bottom))] lg:pb-8">
             {children}
           </div>
         </main>

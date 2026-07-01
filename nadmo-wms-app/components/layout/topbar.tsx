@@ -86,7 +86,7 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
               <Menu className="size-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-64">
+          <SheetContent side="left" className="p-0 w-64 pt-safe">
             <SheetHeader className="px-5 pt-5 pb-3 border-b border-border">
               <div className="flex items-center gap-2.5">
                 <NadmoLogo className="h-8 w-8 shrink-0" />
@@ -132,7 +132,7 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
               })}
             </nav>
             {/* Signed-in card at bottom of drawer */}
-            <div className="absolute inset-x-0 bottom-0 m-3 rounded-lg bg-accent/50 p-3">
+            <div className="absolute inset-x-0 bottom-0 m-3 mb-[calc(0.75rem+env(safe-area-inset-bottom))] rounded-lg bg-accent/50 p-3">
               <div className="text-[10px] font-medium uppercase tracking-[0.1em] text-ink-faint">
                 Signed in
               </div>

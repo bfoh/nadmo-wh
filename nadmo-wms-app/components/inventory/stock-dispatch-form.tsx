@@ -229,7 +229,7 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
         </div>
       </div>
 
-      <div className="sticky bottom-0 bg-background py-3 -mx-4 px-4 border-t border-border lg:static lg:border-0 lg:mx-0 lg:px-0 lg:py-0">
+      <div className="sticky bottom-[calc(3.5rem+env(safe-area-inset-bottom))] lg:bottom-auto bg-background py-3 -mx-4 px-4 border-t border-border lg:static lg:border-0 lg:mx-0 lg:px-0 lg:py-0">
         <Button type="submit" disabled={loading} className="w-full lg:w-auto active:scale-[0.98] transition-transform">
           {loading ? 'Dispatching...' : 'Dispatch Stock'}
         </Button>

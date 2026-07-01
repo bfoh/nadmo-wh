@@ -58,7 +58,7 @@ function DialogContent({
           "data-open:animate-in data-open:fade-in-0 data-open:slide-in-from-bottom-1/2",
           "data-closed:animate-out data-closed:fade-out-0 data-closed:slide-out-to-bottom-1/2",
           // ── Desktop: centered modal ──
-          "md:inset-auto md:top-1/2 md:left-1/2 md:bottom-auto md:max-w-sm md:max-h-[calc(100dvh-4rem)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-xl md:max-w-[calc(100%-2rem)]",
+          "md:inset-auto md:top-1/2 md:left-1/2 md:bottom-auto md:max-w-sm md:max-h-[calc(100dvh-4rem)] md:-translate-x-1/2 md:-translate-y-1/2 md:rounded-xl",
           "md:data-open:slide-in-from-bottom-0 md:data-open:zoom-in-95",
           "md:data-closed:slide-out-to-bottom-0 md:data-closed:zoom-out-95",
           className
