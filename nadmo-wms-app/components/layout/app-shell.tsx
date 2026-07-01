@@ -18,7 +18,7 @@ export function AppShell({ children, profile, warehouseName, notificationCount }
   const userName = `${profile.first_name} ${profile.last_name}`;
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex border-t-[3px] border-t-ghana-gold">
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
