@@ -3,7 +3,7 @@ import { ShieldCheck, Radio, PackageCheck } from 'lucide-react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[1.05fr_1fr]">
+    <div className="min-h-dvh grid lg:grid-cols-[1.05fr_1fr]">
       {/* Brand panel — the command-center identity. */}
       <aside className="relative hidden overflow-hidden bg-nadmo-green-dark text-white lg:flex lg:flex-col lg:justify-between p-12">
         {/* Quiet coordinate-grid texture, like an ops board. */}

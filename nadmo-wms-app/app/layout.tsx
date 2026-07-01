@@ -33,7 +33,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#006B3F',
+  // Extend under the notch / home indicator; we pad with env(safe-area-inset-*).
+  viewportFit: 'cover',
+  // Match the browser chrome to the app canvas per color scheme (Carbon white / Gray-100).
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#161616' },
+  ],
 };
 
 export default function RootLayout({

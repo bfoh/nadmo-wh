@@ -57,7 +57,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background p-4">
+    <div className="flex min-h-dvh items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="space-y-4 text-center">
           <NadmoLogo className="mx-auto h-16 w-16" />

@@ -18,7 +18,7 @@ export function AppShell({ children, profile, warehouseName, notificationCount }
   const userName = `${profile.first_name} ${profile.last_name}`;
 
   return (
-    <div className="min-h-screen bg-background flex border-t-[3px] border-t-ghana-gold">
+    <div className="min-h-dvh bg-background flex border-t-[3px] border-t-ghana-gold">
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
@@ -31,7 +31,11 @@ export function AppShell({ children, profile, warehouseName, notificationCount }
           warehouseName={warehouseName}
           notificationCount={notificationCount}
         />
-        <main id="main-content" tabIndex={-1} className="flex-1 overflow-auto outline-none">
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex-1 overflow-auto outline-none scroll-momentum px-safe pb-safe"
+        >
           <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">{children}</div>
         </main>
       </div>

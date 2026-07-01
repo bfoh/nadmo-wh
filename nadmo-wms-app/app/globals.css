@@ -298,6 +298,25 @@
   *::-webkit-scrollbar-thumb:hover {
     background-color: color-mix(in oklch, var(--foreground) 30%, transparent);
   }
+  /* Kill the 300ms tap delay on interactive elements. */
+  a, button, [role="button"], input, select, textarea, label, summary {
+    touch-action: manipulation;
+  }
+  /* Touch devices: guarantee comfortable hit areas (WCAG 44px / Carbon 48px)
+     on primary controls. Small utility icon buttons (xs/sm) are left as-is. */
+  @media (pointer: coarse) {
+    [data-slot="input"],
+    [data-slot="select-trigger"] {
+      min-height: 2.75rem;
+    }
+    [data-slot="button"]:not([class*="size-6"]):not([class*="size-7"]):not([class*="h-6"]):not([class*="h-7"]) {
+      min-height: 2.75rem;
+    }
+    [data-slot="button"][class*="size-9"],
+    [data-slot="button"][class*="size-10"] {
+      min-width: 2.75rem;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -314,6 +333,23 @@
 @utility elev-1 { box-shadow: var(--elev-1); }
 @utility elev-2 { box-shadow: var(--elev-2); }
 @utility elev-3 { box-shadow: var(--elev-3); }
+
+/* Safe-area insets (notch / Dynamic Island / home indicator / landscape edges).
+   *-safe variants add the inset ON TOP of a base value via max(); plain variants
+   apply the raw inset. Used by the top bar, drawers, bottom nav, and page frame. */
+@utility pt-safe { padding-top: env(safe-area-inset-top); }
+@utility pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+@utility pl-safe { padding-left: env(safe-area-inset-left); }
+@utility pr-safe { padding-right: env(safe-area-inset-right); }
+@utility px-safe {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+@utility mb-safe { margin-bottom: env(safe-area-inset-bottom); }
+@utility scroll-momentum {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
 
 @layer components {
   .skip-link {
