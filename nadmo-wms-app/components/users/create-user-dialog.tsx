@@ -134,7 +134,7 @@ export function CreateUserDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogTrigger render={<Button className="bg-[#006B3F] hover:bg-[#024F2E]" />}>
+      <DialogTrigger render={<Button className="bg-primary hover:bg-primary/90" />}>
         <Plus className="mr-2 h-4 w-4" />
         Create User
       </DialogTrigger>
@@ -143,7 +143,7 @@ export function CreateUserDialog({
           <>
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-[#006B3F]" />
+                <CheckCircle2 className="h-5 w-5 text-primary" />
                 User created
               </DialogTitle>
               <DialogDescription>
@@ -167,7 +167,7 @@ export function CreateUserDialog({
               </Button>
             </div>
             <DialogFooter>
-              <Button onClick={() => onOpenChange(false)} className="bg-[#006B3F] hover:bg-[#024F2E]">
+              <Button onClick={() => onOpenChange(false)} className="bg-primary hover:bg-primary/90">
                 Done
               </Button>
             </DialogFooter>
@@ -288,7 +288,7 @@ export function CreateUserDialog({
 
             <DialogFooter>
               <DialogClose render={<Button type="button" variant="outline" />}>Cancel</DialogClose>
-              <Button type="submit" disabled={loading} className="bg-[#006B3F] hover:bg-[#024F2E]">
+              <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90">
                 {loading ? 'Creating…' : 'Create User'}
               </Button>
             </DialogFooter>

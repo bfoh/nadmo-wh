@@ -28,7 +28,9 @@ export function AppShell({ children, profile, warehouseName, notificationCount }
           warehouseName={warehouseName}
           notificationCount={notificationCount}
         />
-        <main className="flex-1 p-4 lg:p-6 overflow-auto">{children}</main>
+        <main className="flex-1 overflow-auto">
+          <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">{children}</div>
+        </main>
       </div>
     </div>
   );

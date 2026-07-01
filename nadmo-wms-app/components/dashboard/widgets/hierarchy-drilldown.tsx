@@ -13,18 +13,18 @@ const TYPE_LABEL: Record<string, string> = {
 
 function WarehouseRow({ w }: { w: HierWarehouse }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-md px-3 py-2 hover:bg-muted/50">
+    <div className="flex items-center justify-between gap-3 rounded-md px-3 py-2 transition-colors hover:bg-muted/50">
       <div className="flex min-w-0 items-center gap-2">
-        <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-        <span className="truncate text-sm text-[#0F172A]">{w.name}</span>
-        <span className="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-600">
+        <Building2 className="h-4 w-4 shrink-0 text-ink-faint" />
+        <span className="truncate text-sm text-ink">{w.name}</span>
+        <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-ink-subtle">
           {TYPE_LABEL[w.type] ?? w.type}
         </span>
       </div>
       <div className="flex shrink-0 items-center gap-3 text-xs">
-        <span className="font-semibold text-[#006B3F]">{w.available.toLocaleString()}</span>
+        <span className="font-semibold text-ink nums">{w.available.toLocaleString()}</span>
         {w.capacityPct !== null && (
-          <span className="w-9 text-right text-muted-foreground">{w.capacityPct}%</span>
+          <span className="w-9 text-right text-ink-subtle nums">{w.capacityPct}%</span>
         )}
       </div>
     </div>
@@ -52,14 +52,14 @@ export function HierarchyDrilldown({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
         {hasContent ? (
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             {national.length > 0 && (
-              <div className="mb-2 rounded-lg border bg-muted/30 p-1">
-                <div className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              <div className="mb-2 rounded-lg border border-border bg-muted/40 p-1">
+                <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.12em] text-ink-faint">
                   National (HQ)
                 </div>
                 {national.map((w) => (
@@ -71,7 +71,7 @@ export function HierarchyDrilldown({
             {regions.map((region) => {
               const isOpen = !!open[region.id];
               return (
-                <div key={region.id} className="rounded-lg border">
+                <div key={region.id} className="overflow-hidden rounded-lg border border-border">
                   <button
                     type="button"
                     onClick={() => toggle(region.id)}
@@ -79,21 +79,21 @@ export function HierarchyDrilldown({
                   >
                     <div className="flex items-center gap-2">
                       <ChevronRight
-                        className={`h-4 w-4 text-muted-foreground transition-transform ${
+                        className={`h-4 w-4 text-ink-faint transition-transform duration-150 ${
                           isOpen ? 'rotate-90' : ''
                         }`}
                       />
-                      <span className="font-medium text-[#0F172A]">{region.name}</span>
-                      <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-600">
+                      <span className="font-medium text-ink">{region.name}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-ink-subtle nums">
                         {region.warehouses.length} WH
                       </span>
                     </div>
-                    <span className="text-sm font-semibold text-[#006B3F]">
+                    <span className="text-sm font-semibold text-ink nums">
                       {region.available.toLocaleString()}
                     </span>
                   </button>
                   {isOpen && (
-                    <div className="border-t bg-muted/20 p-1">
+                    <div className="border-t border-border bg-muted/30 p-1">
                       {region.warehouses.map((w) => (
                         <WarehouseRow key={w.id} w={w} />
                       ))}

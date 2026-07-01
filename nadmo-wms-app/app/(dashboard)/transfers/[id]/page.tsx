@@ -56,7 +56,7 @@ export default async function TransferDetailPage({ params }: TransferDetailPageP
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-[#0F172A]">{transfer.transfer_number}</h1>
+            <h1 className="text-2xl font-bold text-ink">{transfer.transfer_number}</h1>
             <p className="text-muted-foreground">
               {transfer.source_warehouse?.name} → {transfer.destination_warehouse?.name}
             </p>

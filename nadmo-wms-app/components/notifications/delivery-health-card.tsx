@@ -39,24 +39,24 @@ export function DeliveryHealthCard({ health }: { health: DeliveryHealth }) {
       </CardHeader>
       <CardContent className="space-y-5">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <Tile label="Sent" value={health.sent} tint="text-[#006B3F]" />
-          <Tile label="Failed" value={health.failed} tint="text-[#CE1126]" />
-          <Tile label="Pending" value={health.pending} tint="text-amber-600" />
-          <Tile label="Delivery rate" value={`${health.ratePct}%`} tint="text-[#0F172A]" />
+          <Tile label="Sent" value={health.sent} tint="text-primary" />
+          <Tile label="Failed" value={health.failed} tint="text-critical" />
+          <Tile label="Pending" value={health.pending} tint="text-strained" />
+          <Tile label="Delivery rate" value={`${health.ratePct}%`} tint="text-ink" />
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <div className="flex items-center justify-between rounded-lg border p-3 text-sm">
-            <span className="flex items-center gap-2 font-medium text-[#0F172A]">
-              <Mail className="h-4 w-4 text-[#006B3F]" /> Email
+            <span className="flex items-center gap-2 font-medium text-ink">
+              <Mail className="h-4 w-4 text-primary" /> Email
             </span>
             <span className="text-muted-foreground">
               {health.byChannel.email.sent} sent · {health.byChannel.email.failed} failed
             </span>
           </div>
           <div className="flex items-center justify-between rounded-lg border p-3 text-sm">
-            <span className="flex items-center gap-2 font-medium text-[#0F172A]">
-              <MessageSquare className="h-4 w-4 text-[#006B3F]" /> SMS
+            <span className="flex items-center gap-2 font-medium text-ink">
+              <MessageSquare className="h-4 w-4 text-primary" /> SMS
             </span>
             <span className="text-muted-foreground">
               {health.byChannel.sms.sent} sent · {health.byChannel.sms.failed} failed
@@ -65,7 +65,7 @@ export function DeliveryHealthCard({ health }: { health: DeliveryHealth }) {
         </div>
 
         <div>
-          <div className="mb-2 text-sm font-medium text-[#0F172A]">Recent failures</div>
+          <div className="mb-2 text-sm font-medium text-ink">Recent failures</div>
           {health.failures.length > 0 ? (
             <div className="overflow-x-auto rounded-lg border">
               <table className="w-full text-sm">
@@ -81,8 +81,8 @@ export function DeliveryHealthCard({ health }: { health: DeliveryHealth }) {
                   {health.failures.map((f) => (
                     <tr key={f.id} className="border-b last:border-0">
                       <td className="px-3 py-2 capitalize text-muted-foreground">{f.channel}</td>
-                      <td className="px-3 py-2 text-[#0F172A]">{f.recipient}</td>
-                      <td className="max-w-[260px] truncate px-3 py-2 text-[#CE1126]" title={f.error ?? ''}>
+                      <td className="px-3 py-2 text-ink">{f.recipient}</td>
+                      <td className="max-w-[260px] truncate px-3 py-2 text-critical" title={f.error ?? ''}>
                         {f.error ?? '—'}
                       </td>
                       <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
@@ -95,7 +95,7 @@ export function DeliveryHealthCard({ health }: { health: DeliveryHealth }) {
             </div>
           ) : (
             <div className="flex flex-col items-center rounded-lg border py-8 text-center text-muted-foreground">
-              <CheckCircle2 className="mb-2 h-8 w-8 text-[#006B3F] opacity-40" />
+              <CheckCircle2 className="mb-2 h-8 w-8 text-primary opacity-40" />
               <p className="text-sm">No delivery failures.</p>
             </div>
           )}

@@ -29,7 +29,7 @@ export default async function InventoryPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0F172A]">Inventory Management</h1>
+        <h1 className="text-2xl font-bold text-ink">Inventory Management</h1>
         <p className="text-muted-foreground">Track stock levels, receive goods, and dispatch relief items</p>
       </div>
 

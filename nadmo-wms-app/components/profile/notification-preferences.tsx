@@ -100,7 +100,7 @@ export function NotificationPreferences({
     <Card className="max-w-2xl">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Bell className="h-5 w-5 text-[#006B3F]" />
+          <Bell className="h-5 w-5 text-primary" />
           Notification Preferences
         </CardTitle>
         <Button variant="outline" size="sm" onClick={handleTest} disabled={testing}>
@@ -114,24 +114,24 @@ export function NotificationPreferences({
           <label className="flex items-center gap-3 rounded-lg border p-3">
             <input
               type="checkbox"
-              className="h-4 w-4 accent-[#006B3F]"
+              className="h-4 w-4 accent-primary"
               checked={emailEnabled}
               onChange={(e) => setEmailEnabled(e.target.checked)}
             />
             <span>
-              <span className="block font-medium text-[#0F172A]">Email notifications</span>
+              <span className="block font-medium text-ink">Email notifications</span>
               <span className="block text-xs text-muted-foreground">Via Brevo</span>
             </span>
           </label>
           <label className="flex items-center gap-3 rounded-lg border p-3">
             <input
               type="checkbox"
-              className="h-4 w-4 accent-[#006B3F]"
+              className="h-4 w-4 accent-primary"
               checked={smsEnabled}
               onChange={(e) => setSmsEnabled(e.target.checked)}
             />
             <span>
-              <span className="block font-medium text-[#0F172A]">SMS notifications</span>
+              <span className="block font-medium text-ink">SMS notifications</span>
               <span className="block text-xs text-muted-foreground">Via Arkesel</span>
             </span>
           </label>
@@ -139,7 +139,7 @@ export function NotificationPreferences({
 
         {/* Quiet hours */}
         <div className="space-y-2">
-          <div className="text-sm font-medium text-[#0F172A]">Quiet hours</div>
+          <div className="text-sm font-medium text-ink">Quiet hours</div>
           <p className="text-xs text-muted-foreground">
             Non-critical notifications are held during these hours. Critical alerts always come
             through.
@@ -152,7 +152,7 @@ export function NotificationPreferences({
             {(quietStart !== null || quietEnd !== null) && (
               <button
                 type="button"
-                className="text-xs text-[#CE1126] hover:underline"
+                className="text-xs text-critical hover:underline"
                 onClick={() => {
                   setQuietStart(null);
                   setQuietEnd(null);
@@ -166,7 +166,7 @@ export function NotificationPreferences({
 
         {/* Per-category matrix */}
         <div className="space-y-2">
-          <div className="text-sm font-medium text-[#0F172A]">By notification type</div>
+          <div className="text-sm font-medium text-ink">By notification type</div>
           <div className="overflow-x-auto rounded-lg border">
             <table className="w-full text-sm">
               <thead>
@@ -180,7 +180,7 @@ export function NotificationPreferences({
                 {rows.map((r) => (
                   <tr key={r.type} className="border-b last:border-0">
                     <td className="px-3 py-2">
-                      <span className="flex items-center gap-1.5 text-[#0F172A]">
+                      <span className="flex items-center gap-1.5 text-ink">
                         {TYPE_LABELS[r.type] ?? r.type}
                         {r.critical && (
                           <span title="Critical — always delivered">
@@ -213,7 +213,7 @@ export function NotificationPreferences({
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving} className="bg-[#006B3F] hover:bg-[#024F2E]">
+          <Button onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary/90">
             {saving ? 'Saving…' : 'Save preferences'}
           </Button>
         </div>
@@ -260,7 +260,7 @@ function ChannelCheckbox({
   return (
     <input
       type="checkbox"
-      className="h-4 w-4 accent-[#006B3F] disabled:opacity-50"
+      className="h-4 w-4 accent-primary disabled:opacity-50"
       checked={checked}
       disabled={locked}
       onChange={(e) => onChange(e.target.checked)}

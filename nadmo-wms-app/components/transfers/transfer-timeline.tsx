@@ -21,7 +21,7 @@ export function TransferTimeline({ transfer, approvalSteps = [] }: TransferTimel
   ];
 
   return (
-    <div className="bg-white rounded-lg border p-6">
+    <div className="bg-card rounded-xl elev-1 p-6">
       {approvalSteps.length > 0 && (
         <div className="mb-8">
           <h3 className="font-medium mb-4">Command Chain</h3>
@@ -66,8 +66,8 @@ export function TransferTimeline({ transfer, approvalSteps = [] }: TransferTimel
               <div
                 className={`w-4 h-4 rounded-full border-2 z-10 mt-0.5 ${
                   event.active
-                    ? 'bg-[#006B3F] border-[#006B3F]'
-                    : 'bg-white border-border'
+                    ? 'bg-primary border-primary'
+                    : 'bg-card border-border'
                 }`}
               />
               <div className="flex-1">

@@ -13,7 +13,7 @@ export default async function MapPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-[#0F172A]">National Warehouse Map</h1>
+        <h1 className="text-2xl font-bold text-ink">National Warehouse Map</h1>
         <p className="text-muted-foreground">Geographic view of all NADMO warehouses</p>
       </div>
 
@@ -26,7 +26,7 @@ export default async function MapPage() {
             {warehouses?.map((warehouse: any) => (
               <div key={warehouse.id} className="p-4 border rounded-lg">
                 <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-[#006B3F] mt-0.5" />
+                  <MapPin className="w-5 h-5 text-primary mt-0.5" />
                   <div>
                     <div className="font-medium">{warehouse.name}</div>
                     <div className="text-sm text-muted-foreground">{warehouse.code}</div>

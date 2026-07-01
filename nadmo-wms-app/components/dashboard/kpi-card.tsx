@@ -1,5 +1,8 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
+
+type Variant = 'default' | 'critical' | 'warning' | 'success';
 
 interface KpiCardProps {
   title: string;
@@ -7,36 +10,57 @@ interface KpiCardProps {
   description?: string;
   icon: LucideIcon;
   trend?: 'up' | 'down' | 'neutral';
-  variant?: 'default' | 'critical' | 'warning' | 'success';
+  variant?: Variant;
 }
 
-export function KpiCard({ title, value, description, icon: Icon, variant = 'default' }: KpiCardProps) {
-  const variantClasses = {
-    default: 'bg-white',
-    critical: 'bg-red-50 border-red-200',
-    warning: 'bg-amber-50 border-amber-200',
-    success: 'bg-green-50 border-green-200',
-  };
+// Variant → readiness tone. "default" stays neutral (no rail); the others carry
+// the readiness rail + a tinted icon so status is legible before reading.
+const TONE: Record<Variant, 'ready' | 'strained' | 'critical' | undefined> = {
+  default: undefined,
+  success: 'ready',
+  warning: 'strained',
+  critical: 'critical',
+};
 
-  const iconColors = {
-    default: 'text-[#006B3F] bg-green-50',
-    critical: 'text-red-700 bg-red-100',
-    warning: 'text-amber-700 bg-amber-100',
-    success: 'text-green-700 bg-green-100',
-  };
+const ICON_CHIP: Record<Variant, string> = {
+  default: 'bg-primary/10 text-primary',
+  success: 'bg-ready-soft text-ready',
+  warning: 'bg-strained-soft text-strained',
+  critical: 'bg-critical-soft text-critical',
+};
+
+const DESC_COLOR: Record<Variant, string> = {
+  default: 'text-ink-subtle',
+  success: 'text-ready-foreground',
+  warning: 'text-strained-foreground',
+  critical: 'text-critical-foreground',
+};
+
+export function KpiCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+  variant = 'default',
+}: KpiCardProps) {
+  const tone = TONE[variant];
 
   return (
-    <Card className={variantClasses[variant]}>
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <div className={`p-2 rounded-lg ${iconColors[variant]}`}>
-          <Icon className="w-4 h-4" />
+    <Card size="sm" tone={tone} className="gap-0 transition-shadow hover:elev-2">
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-[11px] font-semibold uppercase tracking-[0.09em] text-ink-faint">
+          {title}
+        </span>
+        <div className={cn('flex size-8 shrink-0 items-center justify-center rounded-md', ICON_CHIP[variant])}>
+          <Icon className="size-4" />
         </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-2xl font-bold text-foreground">{value}</div>
-        {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
-      </CardContent>
+      </div>
+      <div className="mt-3 font-display text-3xl font-semibold leading-none tracking-[-0.02em] text-ink nums">
+        {value}
+      </div>
+      {description && (
+        <p className={cn('mt-2 text-xs font-medium', DESC_COLOR[variant])}>{description}</p>
+      )}
     </Card>
   );
 }

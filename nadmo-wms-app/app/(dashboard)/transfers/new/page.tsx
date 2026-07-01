@@ -20,7 +20,7 @@ export default async function NewTransferPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-[#0F172A]">Create Transfer Order</h1>
+          <h1 className="text-2xl font-bold text-ink">Create Transfer Order</h1>
           <p className="text-muted-foreground">Move stock between NADMO warehouses</p>
         </div>
       </div>

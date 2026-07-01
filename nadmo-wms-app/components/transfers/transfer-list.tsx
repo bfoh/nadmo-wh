@@ -42,7 +42,7 @@ export function TransferList({ transfers }: TransferListProps) {
           {transfers.map((transfer) => (
             <TableRow key={transfer.id} className="cursor-pointer hover:bg-muted/50">
               <TableCell className="font-medium">
-                <Link href={`/transfers/${transfer.id}`} className="text-[#006B3F] hover:underline">
+                <Link href={`/transfers/${transfer.id}`} className="text-primary hover:underline">
                   {transfer.transfer_number}
                 </Link>
               </TableCell>
@@ -52,19 +52,19 @@ export function TransferList({ transfers }: TransferListProps) {
                 <div className="flex flex-wrap items-center gap-1.5">
                   <StatusBadge status={transfer.status} />
                   {transfer.escalation_count > 0 && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-strained-soft text-strained-foreground border border-strained-border">
                       ↑{transfer.escalation_count}
                     </span>
                   )}
                   {transfer.status === 'pending_approval' &&
                     transfer.sla_due_at &&
                     new Date(transfer.sla_due_at) < new Date() && (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-critical-soft text-critical-foreground border border-critical-border">
                         Overdue
                       </span>
                     )}
                   {transfer.discrepancy_status === 'open' && (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700 border border-red-200">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-critical-soft text-critical-foreground border border-critical-border">
                       Discrepancy
                     </span>
                   )}

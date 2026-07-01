@@ -1,10 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShieldCheck } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { StockAlertRow } from '@/lib/dashboard/data';
 
-const STATUS_STYLES: Record<string, string> = {
-  critical: 'bg-red-50 text-[#CE1126] ring-1 ring-inset ring-red-200',
-  amber: 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-200',
+const STATUS: Record<string, { label: string; pill: string; dot: string }> = {
+  critical: {
+    label: 'Critical',
+    pill: 'bg-critical-soft text-critical-foreground border-critical-border',
+    dot: 'bg-critical',
+  },
+  amber: {
+    label: 'Low',
+    pill: 'bg-strained-soft text-strained-foreground border-strained-border',
+    dot: 'bg-strained',
+  },
 };
 
 export function StockHealthCard({
@@ -14,55 +23,79 @@ export function StockHealthCard({
   alerts: StockAlertRow[];
   showWarehouse?: boolean;
 }) {
+  const criticalCount = alerts.filter((a) => a.status === 'critical').length;
+  const tone = criticalCount > 0 ? 'critical' : alerts.length > 0 ? 'strained' : undefined;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Stock Health</CardTitle>
+    <Card tone={tone}>
+      <CardHeader className="flex-row items-center justify-between gap-3">
+        <CardTitle>Stock Health</CardTitle>
+        {alerts.length > 0 && (
+          <span className="text-xs font-medium text-ink-subtle nums">
+            {alerts.length} {alerts.length === 1 ? 'alert' : 'alerts'}
+            {criticalCount > 0 && (
+              <span className="text-critical-foreground"> · {criticalCount} critical</span>
+            )}
+          </span>
+        )}
       </CardHeader>
       <CardContent>
         {alerts.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  {showWarehouse && <th className="py-2 pr-4 font-medium">Warehouse</th>}
-                  <th className="py-2 pr-4 font-medium">Category</th>
-                  <th className="py-2 pr-4 font-medium text-right">Available</th>
-                  <th className="py-2 pr-4 font-medium text-right">Min</th>
-                  <th className="py-2 font-medium text-right">Status</th>
+                <tr className="border-b border-border text-left text-[11px] uppercase tracking-[0.08em] text-ink-faint">
+                  {showWarehouse && <th className="py-2 pr-4 font-semibold">Warehouse</th>}
+                  <th className="py-2 pr-4 font-semibold">Category</th>
+                  <th className="py-2 pr-4 text-right font-semibold">Available</th>
+                  <th className="py-2 pr-4 text-right font-semibold">Min</th>
+                  <th className="py-2 text-right font-semibold">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {alerts.map((a, i) => (
-                  <tr key={`${a.warehouse_id}-${a.category_name}-${i}`} className="border-b last:border-0 hover:bg-muted/40">
-                    {showWarehouse && (
-                      <td className="py-2.5 pr-4 font-medium text-[#0F172A]">{a.warehouse_name}</td>
-                    )}
-                    <td className="py-2.5 pr-4 text-muted-foreground">{a.category_name}</td>
-                    <td className="py-2.5 pr-4 text-right font-semibold text-[#0F172A]">
-                      {Number(a.available).toLocaleString()}
-                    </td>
-                    <td className="py-2.5 pr-4 text-right text-muted-foreground">
-                      {Number(a.min_quantity).toLocaleString()}
-                    </td>
-                    <td className="py-2.5 text-right">
-                      <span
-                        className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
-                          STATUS_STYLES[a.status]
-                        }`}
-                      >
-                        {a.status === 'amber' ? 'Low' : 'Critical'}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                {alerts.map((a, i) => {
+                  const s = STATUS[a.status] ?? STATUS.amber;
+                  return (
+                    <tr
+                      key={`${a.warehouse_id}-${a.category_name}-${i}`}
+                      className="border-b border-border/70 last:border-0 transition-colors hover:bg-muted/50"
+                    >
+                      {showWarehouse && (
+                        <td className="py-2.5 pr-4 font-medium text-ink">{a.warehouse_name}</td>
+                      )}
+                      <td className="py-2.5 pr-4 text-ink-muted">{a.category_name}</td>
+                      <td className="py-2.5 pr-4 text-right font-semibold text-ink nums">
+                        {Number(a.available).toLocaleString()}
+                      </td>
+                      <td className="py-2.5 pr-4 text-right text-ink-subtle nums">
+                        {Number(a.min_quantity).toLocaleString()}
+                      </td>
+                      <td className="py-2.5 text-right">
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
+                            s.pill
+                          )}
+                        >
+                          <span className={cn('size-1.5 rounded-full', s.dot)} aria-hidden />
+                          {s.label}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         ) : (
-          <div className="flex flex-col items-center py-10 text-center text-muted-foreground">
-            <ShieldCheck className="mb-3 h-10 w-10 text-[#006B3F] opacity-30" />
-            <p>All stock levels are healthy.</p>
+          <div className="flex flex-col items-center gap-3 py-10 text-center">
+            <div className="flex size-12 items-center justify-center rounded-full bg-ready-soft">
+              <ShieldCheck className="size-6 text-ready" />
+            </div>
+            <div>
+              <p className="font-medium text-ink">All stock levels healthy</p>
+              <p className="text-xs text-ink-subtle">No categories below threshold in your scope.</p>
+            </div>
           </div>
         )}
       </CardContent>
