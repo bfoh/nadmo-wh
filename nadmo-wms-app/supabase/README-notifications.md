@@ -3,8 +3,11 @@
 Project ref: `epunhsuypjbhhjdsxupb`
 Dispatcher URL: `https://epunhsuypjbhhjdsxupb.functions.supabase.co/dispatch-notifications`
 
-Do these in order. Steps 2 & 3 need the Supabase CLI (`supabase link --project-ref epunhsuypjbhhjdsxupb`)
-or the dashboard's Edge Functions editor.
+Do these in order. Steps 2 & 3 can be done in the **dashboard** (no CLI needed):
+- Secrets: **Edge Functions → Secrets** (`/project/epunhsuypjbhhjdsxupb/functions/secrets`)
+- Deploy: **Edge Functions → Deploy a new function**, name it `dispatch-notifications`, paste
+  `supabase/functions/dispatch-notifications/index.ts`, and turn **Verify JWT off**.
+CLI equivalents are shown below.
 
 ---
 
@@ -12,19 +15,22 @@ or the dashboard's Edge Functions editor.
 Run `supabase/migrations/00022_notification_delivery.sql` in **SQL Editor**.
 Verify: `select count(*) from notification_routing;` → 10.
 
-## 2. Set Edge Function secrets (fill in your own keys)
+## 2. Set Edge Function secrets
+**Dashboard → Edge Functions → Secrets → Add new secret** (add each row):
+`BREVO_API_KEY`, `BREVO_SENDER_EMAIL` (your verified sender), `BREVO_SENDER_NAME` = `NADMO-WMS`,
+`ARKESEL_API_KEY`, `ARKESEL_SENDER_ID` (approved id), `APP_URL` = `https://www.nadmo.org`.
+Do **not** add `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — injected automatically.
+
+CLI equivalent:
 ```bash
-supabase secrets set \
-  BREVO_API_KEY=xkeysib-REPLACE_ME \
-  BREVO_SENDER_EMAIL=REPLACE_with_your_verified_brevo_sender \
-  BREVO_SENDER_NAME="NADMO-WMS" \
-  ARKESEL_API_KEY=REPLACE_ME \
-  ARKESEL_SENDER_ID=REPLACE_with_your_approved_sender_id \
-  APP_URL=https://www.nadmo.org
+supabase secrets set BREVO_API_KEY=... BREVO_SENDER_EMAIL=... BREVO_SENDER_NAME="NADMO-WMS" \
+  ARKESEL_API_KEY=... ARKESEL_SENDER_ID=... APP_URL=https://www.nadmo.org
 ```
-(`SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are injected automatically — do not set them.)
 
 ## 3. Deploy the dispatcher
+Dashboard: **Edge Functions → Deploy a new function**, name `dispatch-notifications`,
+paste `supabase/functions/dispatch-notifications/index.ts`, **Verify JWT off**.
+CLI equivalent:
 ```bash
 supabase functions deploy dispatch-notifications --no-verify-jwt
 ```
@@ -43,12 +49,27 @@ select cron.schedule(
 );
 ```
 
-## 5. Create the Database Webhook (instant delivery)
-Dashboard → **Database → Webhooks → Create a new hook**:
-- Table: `notification_deliveries`, Events: **Insert**
-- Type: **HTTP Request → POST**
-- URL: `https://epunhsuypjbhhjdsxupb.functions.supabase.co/dispatch-notifications`
-- No auth headers (JWT verification is off).
+## 5. Instant delivery trigger (SQL — replaces the dashboard "Database Webhook")
+Newer dashboards moved Webhooks under **Integrations**; instead just create the
+equivalent trigger in SQL (needs pg_net from step 4):
+```sql
+create or replace function public.dispatch_on_new_delivery()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  perform net.http_post(
+    url := 'https://epunhsuypjbhhjdsxupb.functions.supabase.co/dispatch-notifications',
+    headers := '{"Content-Type":"application/json"}'::jsonb,
+    body := '{}'::jsonb
+  );
+  return null;
+end;
+$$;
+
+drop trigger if exists trg_dispatch_on_new_delivery on public.notification_deliveries;
+create trigger trg_dispatch_on_new_delivery
+  after insert on public.notification_deliveries
+  for each statement execute function public.dispatch_on_new_delivery();
+```
 
 ## 6. Test
 App → **Profile → Send test**. Then check **Settings → Notification Delivery**, or:
