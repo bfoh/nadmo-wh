@@ -1,24 +1,21 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono, Space_Grotesk } from 'next/font/google';
+import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { Toaster } from '@/components/ui/sonner';
 import { ThemeProvider } from '@/components/theme-provider';
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+// IBM Plex Sans carries the whole hierarchy (Carbon uses one family).
+// Weight 300 is the light-display brand voice; 400/500/600 for body & emphasis.
+const plexSans = IBM_Plex_Sans({
+  variable: '--font-ibm-plex-sans',
   subsets: ['latin'],
+  weight: ['300', '400', '500', '600', '700'],
 });
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const plexMono = IBM_Plex_Mono({
+  variable: '--font-ibm-plex-mono',
   subsets: ['latin'],
-});
-
-// Display face — precise, technical character for a command console.
-const spaceGrotesk = Space_Grotesk({
-  variable: '--font-space-grotesk',
-  subsets: ['latin'],
-  weight: ['500', '600', '700'],
+  weight: ['400', '500', '600'],
 });
 
 export const metadata: Metadata = {
@@ -48,7 +45,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${plexSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider
