@@ -1,5 +1,6 @@
 import { Sidebar } from './sidebar';
 import { Topbar } from './topbar';
+import { BottomTabBar } from './bottom-tab-bar';
 import { UserRole } from '@/types';
 
 interface AppShellProps {
@@ -34,11 +35,17 @@ export function AppShell({ children, profile, warehouseName, notificationCount }
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 overflow-auto outline-none scroll-momentum px-safe pb-safe"
+          className="flex-1 overflow-auto outline-none scroll-momentum px-safe"
         >
-          <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8">{children}</div>
+          {/* pb-20 on mobile clears the bottom tab bar (56px bar + safe-area);
+              lg:pb-0 removes it on desktop where sidebar is visible. */}
+          <div className="mx-auto w-full max-w-[1600px] p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8">
+            {children}
+          </div>
         </main>
       </div>
+
+      <BottomTabBar notificationCount={notificationCount ?? 0} />
     </div>
   );
 }

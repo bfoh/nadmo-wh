@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-64 -64 640 640" width="192" height="192" role="img" aria-label="NADMO">
+  <rect x="-64" y="-64" width="640" height="640" fill="#006B3F"/>
+  <circle cx="256" cy="256" r="176" fill="none" stroke="#CE1126" stroke-width="20"/>
+  <circle cx="256" cy="256" r="150" fill="#FCD116"/>
+  <path d="M256 128 L286 217 L380 218 L304 273 L332 363 L256 309 L180 363 L208 273 L132 218 L226 217 Z" fill="#111111"/>
+</svg>

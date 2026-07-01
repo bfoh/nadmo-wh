@@ -165,6 +165,7 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
             id="quantity"
             type="number"
             min="1"
+            inputMode="numeric"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             required
@@ -204,9 +205,11 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
         </div>
       </div>
 
-      <Button type="submit" disabled={loading}>
-        {loading ? 'Receiving...' : 'Receive Stock'}
-      </Button>
+      <div className="sticky bottom-0 bg-background py-3 -mx-4 px-4 border-t border-border lg:static lg:border-0 lg:mx-0 lg:px-0 lg:py-0">
+        <Button type="submit" disabled={loading} className="w-full lg:w-auto active:scale-[0.98] transition-transform">
+          {loading ? 'Receiving...' : 'Receive Stock'}
+        </Button>
+      </div>
     </form>
   );
 }
