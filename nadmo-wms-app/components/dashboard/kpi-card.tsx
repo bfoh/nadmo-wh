@@ -14,7 +14,7 @@ interface KpiCardProps {
 }
 
 // Variant → readiness tone. "default" stays neutral (no rail); the others carry
-// the readiness rail + a tinted icon so status is legible before reading.
+// the readiness rail + a tinted icon so status is legible at a glance.
 const TONE: Record<Variant, 'ready' | 'strained' | 'critical' | undefined> = {
   default: undefined,
   success: 'ready',
@@ -23,14 +23,14 @@ const TONE: Record<Variant, 'ready' | 'strained' | 'critical' | undefined> = {
 };
 
 const ICON_CHIP: Record<Variant, string> = {
-  default: 'bg-primary/10 text-primary',
+  default: 'bg-muted text-ink-muted',
   success: 'bg-ready-soft text-ready',
   warning: 'bg-strained-soft text-strained',
   critical: 'bg-critical-soft text-critical',
 };
 
 const DESC_COLOR: Record<Variant, string> = {
-  default: 'text-ink-subtle',
+  default: 'text-ink-muted',
   success: 'text-ready-foreground',
   warning: 'text-strained-foreground',
   critical: 'text-critical-foreground',
@@ -46,20 +46,32 @@ export function KpiCard({
   const tone = TONE[variant];
 
   return (
-    <Card size="sm" tone={tone} className="gap-0 transition-shadow hover:elev-2">
-      <div className="flex items-start justify-between gap-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.09em] text-ink-faint">
+    // px-6 supplies the horizontal padding Card omits (Card is py-only), clearing
+    // the readiness rail so text is never clipped.
+    <Card
+      tone={tone}
+      className="gap-0 px-6 transition-shadow duration-150 hover:elev-2"
+    >
+      <div className="flex items-start justify-between gap-4">
+        <span className="pt-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-muted">
           {title}
         </span>
-        <div className={cn('flex size-8 shrink-0 items-center justify-center rounded-md', ICON_CHIP[variant])}>
-          <Icon className="size-4" />
+        <div
+          className={cn(
+            'flex size-9 shrink-0 items-center justify-center',
+            ICON_CHIP[variant]
+          )}
+        >
+          <Icon className="size-[18px]" />
         </div>
       </div>
-      <div className="mt-3 font-display text-3xl font-semibold leading-none tracking-[-0.02em] text-ink nums">
+      <div className="mt-3 font-display text-[2.5rem] font-semibold leading-none tracking-[-0.02em] text-ink nums">
         {value}
       </div>
       {description && (
-        <p className={cn('mt-2 text-xs font-medium', DESC_COLOR[variant])}>{description}</p>
+        <p className={cn('mt-2 text-[13px] font-normal', DESC_COLOR[variant])}>
+          {description}
+        </p>
       )}
     </Card>
   );
