@@ -1,6 +1,8 @@
 import Link from 'next/link';
+import { formatDistanceToNow } from 'date-fns';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Clock, ShieldAlert } from 'lucide-react';
+import { ROLE_LABELS, approverRoleForLevel } from '@/lib/auth';
 
 const PRIORITY_STYLES: Record<string, string> = {
   emergency: 'bg-red-50 text-[#CE1126] ring-1 ring-inset ring-red-200',
@@ -22,29 +24,54 @@ export function ApprovalsQueue({ transfers }: { transfers: any[] }) {
       <CardContent>
         {transfers.length > 0 ? (
           <div className="space-y-3">
-            {transfers.map((t) => (
-              <Link
-                key={t.id}
-                href={`/transfers/${t.id}`}
-                className="block rounded-lg border p-3 transition-colors hover:bg-muted/50"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="font-medium text-[#0F172A]">{t.transfer_number}</div>
-                    <div className="truncate text-sm text-muted-foreground">
-                      {t.source_warehouse?.name} → {t.destination_warehouse?.name}
+            {transfers.map((t) => {
+              const tier = t.required_level ? ROLE_LABELS[approverRoleForLevel(t.required_level)] : null;
+              const due = t.sla_due_at ? new Date(t.sla_due_at) : null;
+              const overdue = due ? due.getTime() < Date.now() : false;
+              return (
+                <Link
+                  key={t.id}
+                  href={`/transfers/${t.id}`}
+                  className="block rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="font-medium text-[#0F172A]">{t.transfer_number}</div>
+                      <div className="truncate text-sm text-muted-foreground">
+                        {t.source_warehouse?.name} → {t.destination_warehouse?.name}
+                      </div>
                     </div>
+                    <span
+                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
+                        PRIORITY_STYLES[t.priority] ?? PRIORITY_STYLES.routine
+                      }`}
+                    >
+                      {t.priority}
+                    </span>
                   </div>
-                  <span
-                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
-                      PRIORITY_STYLES[t.priority] ?? PRIORITY_STYLES.routine
-                    }`}
-                  >
-                    {t.priority}
-                  </span>
-                </div>
-              </Link>
-            ))}
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    {tier && (
+                      <span className="inline-flex items-center gap-1">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        {tier}
+                      </span>
+                    )}
+                    {due && (
+                      <span
+                        className={`inline-flex items-center gap-1 ${
+                          overdue ? 'font-medium text-[#CE1126]' : ''
+                        }`}
+                      >
+                        <Clock className="h-3.5 w-3.5" />
+                        {overdue
+                          ? `Overdue ${formatDistanceToNow(due)}`
+                          : `Due in ${formatDistanceToNow(due)}`}
+                      </span>
+                    )}
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         ) : (
           <div className="flex flex-col items-center py-10 text-center text-muted-foreground">

@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { loadScope, type Scope } from '@/lib/scope';
-import { canCreateTransfer, canApproveTransfer } from '@/lib/auth';
+import { canCreateTransfer, isApproverRole, canApproveAtLevel } from '@/lib/auth';
 import {
   getWarehouseSummaries,
   getRegionSummaries,
@@ -42,7 +42,7 @@ export default async function DashboardPage() {
   if (!scope) return null;
 
   const showNewTransfer = canCreateTransfer(scope.role);
-  const canApprove = canApproveTransfer(scope.role, 'routine');
+  const canApprove = isApproverRole(scope.role);
 
   const [warehouseSummaries, regionNames, heading, health] = await Promise.all([
     getWarehouseSummaries(supabase, scope),
@@ -54,7 +54,9 @@ export default async function DashboardPage() {
   let myApprovals: any[] = [];
   if (canApprove) {
     const pending = await getPendingApprovals(supabase);
-    myApprovals = pending.filter((t: any) => canApproveTransfer(scope.role, t.scale));
+    // Awaiting *this user's* tier: the transfer's current required_level must
+    // be one the user's role can clear (escalation can raise it beyond scale).
+    myApprovals = pending.filter((t: any) => canApproveAtLevel(scope.role, t.required_level ?? 99));
   }
 
   const actionBar = (

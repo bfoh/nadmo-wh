@@ -154,7 +154,8 @@ export async function getKpiData(
   };
 }
 
-/** Transfers awaiting approval that are visible to the caller (RLS-scoped). */
+/** Transfers awaiting approval that are visible to the caller (RLS-scoped),
+ *  most SLA-urgent first. */
 export async function getPendingApprovals(supabase: SupabaseClient) {
   const { data } = await supabase
     .from('transfer_orders')
@@ -162,7 +163,7 @@ export async function getPendingApprovals(supabase: SupabaseClient) {
       '*, source_warehouse:source_warehouse_id(name), destination_warehouse:destination_warehouse_id(name)'
     )
     .eq('status', 'pending_approval')
-    .order('created_at', { ascending: true })
+    .order('sla_due_at', { ascending: true, nullsFirst: false })
     .limit(25);
   return data ?? [];
 }

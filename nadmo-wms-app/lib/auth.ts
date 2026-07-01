@@ -147,6 +147,11 @@ export function canApproveAtLevel(role: UserRole, requiredLevel: number): boolea
 export const canRejectAtLevel = canApproveAtLevel;
 export const canEscalateAtLevel = canApproveAtLevel;
 
+/** The approver tier (ladder role) that a given authority level maps to. */
+export function approverRoleForLevel(level: number): UserRole {
+  return APPROVER_LADDER.find((r) => ROLE_HIERARCHY[r] >= level) ?? 'dg';
+}
+
 /** Roles that may confirm receipt (DB also checks destination-warehouse assignment). */
 export const RECEIVER_ROLES: UserRole[] = [
   'district_officer',
