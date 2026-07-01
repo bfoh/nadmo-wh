@@ -36,7 +36,7 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
   }
 
   return (
-    <header className="h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+    <header className="min-h-16 border-b border-border bg-background/80 backdrop-blur-md flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30 pt-safe pl-safe pr-safe">
       <div className="flex items-center gap-3">
         <Sheet>
           <SheetTrigger className="lg:hidden">

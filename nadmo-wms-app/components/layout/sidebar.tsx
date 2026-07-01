@@ -64,7 +64,7 @@ export function Sidebar({ role, userName, warehouseName }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen sticky top-0 border-r border-sidebar-border bg-sidebar">
+    <aside className="hidden lg:flex flex-col w-64 h-dvh sticky top-0 border-r border-sidebar-border bg-sidebar">
       <div className="h-16 px-5 flex items-center gap-2.5">
         <NadmoLogo className="h-9 w-9 shrink-0" />
         <div className="min-w-0">
