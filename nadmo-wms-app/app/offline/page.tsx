@@ -1,3 +1,5 @@
+'use client';
+
 import { NadmoLogo } from '@/components/ui/nadmo-logo';
 import { WifiOff, RefreshCw } from 'lucide-react';
 
