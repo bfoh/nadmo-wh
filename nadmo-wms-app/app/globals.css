@@ -279,6 +279,50 @@
   p {
     text-wrap: pretty;
   }
+  /* Selection uses the brand at low alpha — legible in both themes. */
+  ::selection {
+    background-color: color-mix(in oklch, var(--primary) 22%, transparent);
+    color: var(--foreground);
+  }
+  /* Quiet, themed scrollbars — part of the console feel, not chrome. */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--foreground) 18%, transparent) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklch, var(--foreground) 16%, transparent);
+    border: 2px solid transparent;
+    background-clip: content-box;
+    border-radius: 999px;
+  }
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in oklch, var(--foreground) 28%, transparent);
+  }
+  /* Accessibility: honor reduced-motion. Keep opacity/color, drop movement. */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* Keyboard-only skip link — first tab stop, hidden until focused. */
+@layer components {
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    @apply not-sr-only fixed left-4 top-4 z-[1000] rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground elev-2 outline-none ring-3 ring-ring/40;
+  }
 }
 
 /* Elevation — one strategy, three steps. As utilities so variants (hover:) work. */

@@ -228,7 +228,7 @@ export function StockDispatchForm({ warehouses, inventory }: StockDispatchFormPr
         </div>
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90">
+      <Button type="submit" disabled={loading}>
         {loading ? 'Dispatching...' : 'Dispatch Stock'}
       </Button>
     </form>

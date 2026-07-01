@@ -204,7 +204,7 @@ export function StockIntakeForm({ warehouses, skus, inventory }: StockIntakeForm
         </div>
       </div>
 
-      <Button type="submit" disabled={loading} className="bg-primary hover:bg-primary/90">
+      <Button type="submit" disabled={loading}>
         {loading ? 'Receiving...' : 'Receive Stock'}
       </Button>
     </form>

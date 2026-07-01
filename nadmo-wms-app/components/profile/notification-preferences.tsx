@@ -213,7 +213,7 @@ export function NotificationPreferences({
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={handleSave} disabled={saving} className="bg-primary hover:bg-primary/90">
+          <Button onClick={handleSave} disabled={saving}>
             {saving ? 'Saving…' : 'Save preferences'}
           </Button>
         </div>

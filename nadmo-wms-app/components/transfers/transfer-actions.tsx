@@ -158,7 +158,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
 
         {canApprove && mode === null && (
           <div className="flex flex-wrap gap-3">
-            <Button onClick={handleApprove} disabled={loading} className="bg-primary hover:bg-primary/90">
+            <Button onClick={handleApprove} disabled={loading}>
               Approve Transfer
             </Button>
             <Button onClick={() => setMode('reject')} disabled={loading} variant="outline">
@@ -179,7 +179,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             <div className="flex gap-3">
               <Button
                 disabled={loading || !reason.trim()}
-                className="bg-primary hover:bg-primary/90"
+               
                 onClick={() =>
                   mode === 'reject'
                     ? runAction(() => rejectTransfer(transfer.id, reason), 'Transfer rejected')
@@ -215,7 +215,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
           <div className="flex gap-3">
             <Button
               disabled={loading}
-              className="bg-primary hover:bg-primary/90"
+             
               onClick={() => runAction(() => resubmitTransfer(transfer.id), 'Resubmitted for approval')}
             >
               Resubmit
@@ -251,7 +251,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             <Input value={driverPhone} onChange={(e) => setDriverPhone(e.target.value)} />
           </div>
         </div>
-        <Button onClick={handleDispatch} disabled={loading} className="bg-primary hover:bg-primary/90">
+        <Button onClick={handleDispatch} disabled={loading}>
           Mark as In Transit
         </Button>
       </Card>
@@ -339,7 +339,7 @@ export function TransferActions({ transfer, items, profile }: TransferActionsPro
             />
             <Button
               disabled={loading || !resolveNote.trim()}
-              className="bg-primary hover:bg-primary/90"
+             
               onClick={() => runAction(() => resolveDiscrepancy(transfer.id, resolveNote), 'Discrepancy resolved')}
             >
               Resolve Discrepancy

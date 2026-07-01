@@ -100,7 +100,7 @@ export default function ResetPasswordPage() {
 
             <Button
               type="submit"
-              className="w-full bg-primary hover:bg-primary/90"
+              className="w-full"
               disabled={loading}
             >
               {loading ? 'Saving…' : 'Set password & continue'}
