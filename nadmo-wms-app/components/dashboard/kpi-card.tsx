@@ -1,5 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { AnimatedNumber } from '@/components/ui/animated-number';
 import { LucideIcon } from 'lucide-react';
 
 type Variant = 'default' | 'info' | 'critical' | 'warning' | 'success';
@@ -79,7 +80,7 @@ export function KpiCard({
       </div>
 
       <div className="mt-3 font-display text-[2.5rem] font-semibold leading-none tracking-[-0.02em] text-ink nums">
-        {value}
+        {typeof value === 'number' ? <AnimatedNumber value={value} /> : value}
       </div>
 
       {progress ? (
