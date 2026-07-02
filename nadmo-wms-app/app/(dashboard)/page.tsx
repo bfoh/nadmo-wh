@@ -24,6 +24,8 @@ import { ApprovalsQueue } from '@/components/dashboard/widgets/approvals-queue';
 import { HierarchyDrilldown } from '@/components/dashboard/widgets/hierarchy-drilldown';
 import { StockHealthCard } from '@/components/dashboard/widgets/stock-health-card';
 import { DashboardTabs } from '@/components/dashboard/widgets/dashboard-tabs';
+import { StockDistributionChart } from '@/components/dashboard/widgets/stock-distribution-chart';
+import { RegionalStockChart } from '@/components/dashboard/widgets/regional-stock-chart';
 
 function scopeFilter(scope: Scope): ScopeFilter {
   if (scope.level === 'warehouse') return { warehouseIds: scope.warehouseIds };
@@ -145,9 +147,17 @@ export default async function DashboardPage() {
   const nationalKpis = await getKpiData(supabase, warehouseSummaries, health);
   const nationalRecent = await getRecentTransfers(supabase, scope);
 
+  const chartRegions = hierarchy.regions.map((r) => ({ name: r.name, available: r.available }));
+
   const nationalView = (
     <div className="space-y-6">
       <KpiStrip kpis={nationalKpis} />
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
+        <StockDistributionChart regions={chartRegions} />
+        <div className="lg:col-span-2">
+          <RegionalStockChart regions={chartRegions} />
+        </div>
+      </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <HierarchyDrilldown

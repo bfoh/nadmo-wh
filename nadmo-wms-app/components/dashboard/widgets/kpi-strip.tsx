@@ -23,7 +23,7 @@ export function KpiStrip({ kpis }: { kpis: DashboardKpis }) {
       />
       <KpiCard
         title="Available Units"
-        value={kpis.availableUnits.toLocaleString()}
+        value={kpis.availableUnits}
         icon={Boxes}
         variant="success"
         progress={{ pct: kpis.capacityPct, label: 'Network capacity used' }}
