@@ -26,6 +26,7 @@ import { StockHealthCard } from '@/components/dashboard/widgets/stock-health-car
 import { DashboardTabs } from '@/components/dashboard/widgets/dashboard-tabs';
 import { StockDistributionChart } from '@/components/dashboard/widgets/stock-distribution-chart';
 import { RegionalStockChart } from '@/components/dashboard/widgets/regional-stock-chart';
+import { ZeroStockBanner } from '@/components/dashboard/widgets/zero-stock-banner';
 
 function scopeFilter(scope: Scope): ScopeFilter {
   if (scope.level === 'warehouse') return { warehouseIds: scope.warehouseIds };
@@ -126,9 +127,10 @@ export default async function DashboardPage() {
     return (
       <div className="space-y-6">
         {actionBar}
+        <ZeroStockBanner regions={hierarchy.regions.map((r) => ({ name: r.name, available: r.available }))} />
         <KpiStrip kpis={kpis} />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
+          <div id="national-network" className="space-y-6 lg:col-span-2 scroll-mt-20">
             <HierarchyDrilldown
               title="Your region"
               regions={hierarchy.regions}
@@ -151,6 +153,7 @@ export default async function DashboardPage() {
 
   const nationalView = (
     <div className="space-y-6">
+      <ZeroStockBanner regions={chartRegions} />
       <KpiStrip kpis={nationalKpis} />
       <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         <StockDistributionChart regions={chartRegions} />
@@ -159,7 +162,7 @@ export default async function DashboardPage() {
         </div>
       </div>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="space-y-6 lg:col-span-2">
+        <div id="national-network" className="space-y-6 lg:col-span-2 scroll-mt-20">
           <HierarchyDrilldown
             title="National Network"
             regions={hierarchy.regions}
