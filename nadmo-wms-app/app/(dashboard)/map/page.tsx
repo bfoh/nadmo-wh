@@ -1,50 +1,67 @@
 import { createClient } from '@/lib/supabase/server';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { loadScope } from '@/lib/scope';
+import { getWarehouseSummaries } from '@/lib/dashboard/data';
+import { MapView } from '@/components/map/map-view';
+import type { MapWarehouse } from '@/components/map/warehouse-map';
 import { MapPin } from 'lucide-react';
 
 export default async function MapPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return null;
 
-  const { data: warehouses } = await supabase
-    .from('warehouses')
-    .select('*, district:district_id(name, region:region_id(name))')
-    .eq('status', 'operational');
+  const scope = await loadScope(supabase, user.id);
+
+  // Warehouses are RLS-scoped to the caller; merge with stock summaries for
+  // pin colour + popup figures.
+  const [{ data: warehouses }, summaries] = await Promise.all([
+    supabase
+      .from('warehouses')
+      .select('id, name, code, type, latitude, longitude, district:district_id(name, region:region_id(name))')
+      .eq('status', 'operational'),
+    scope ? getWarehouseSummaries(supabase, scope) : Promise.resolve([]),
+  ]);
+
+  const stockById = new Map(summaries.map((s) => [s.warehouse_id, s]));
+
+  const markers: MapWarehouse[] = (warehouses ?? [])
+    .filter((w: any) => w.latitude != null && w.longitude != null)
+    .map((w: any) => {
+      const s = stockById.get(w.id);
+      const capacityPct =
+        s && s.capacity_m3
+          ? Math.min(100, Math.round((Number(s.used_volume_m3) / Number(s.capacity_m3)) * 100))
+          : null;
+      return {
+        id: w.id,
+        name: w.name,
+        code: w.code,
+        type: w.type,
+        region: w.district?.region?.name ?? null,
+        lat: Number(w.latitude),
+        lng: Number(w.longitude),
+        available: s ? Number(s.available_quantity || 0) : 0,
+        capacityPct,
+      };
+    });
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-ink">National Warehouse Map</h1>
-        <p className="text-muted-foreground">Geographic view of all NADMO warehouses</p>
+        <p className="text-ink-subtle">Geographic view of all NADMO warehouses</p>
       </div>
 
-      <Card className="h-[calc(100dvh-12rem)] min-h-[400px]">
-        <CardHeader>
-          <CardTitle className="text-lg">Warehouse Locations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 h-full overflow-auto">
-            {warehouses?.map((warehouse: any) => (
-              <div key={warehouse.id} className="p-4 border rounded-lg">
-                <div className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-primary mt-0.5" />
-                  <div>
-                    <div className="font-medium">{warehouse.name}</div>
-                    <div className="text-sm text-muted-foreground">{warehouse.code}</div>
-                    <div className="text-xs text-muted-foreground mt-1 capitalize">
-                      {warehouse.type} • {warehouse.district?.region?.name}
-                    </div>
-                    {warehouse.latitude && warehouse.longitude && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {warehouse.latitude.toFixed(4)}, {warehouse.longitude.toFixed(4)}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      {markers.length === 0 ? (
+        <div className="flex flex-col items-center gap-2 border border-border bg-card py-16 text-center text-ink-subtle">
+          <MapPin className="h-9 w-9 opacity-25" />
+          <p>No warehouses with map coordinates to plot.</p>
+        </div>
+      ) : (
+        <MapView warehouses={markers} />
+      )}
     </div>
   );
 }
