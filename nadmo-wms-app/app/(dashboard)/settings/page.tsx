@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { canManageUsers } from '@/lib/auth';
+import { getSettings } from '@/lib/settings';
+import { SettingsForm } from '@/components/settings/settings-form';
 import {
   DeliveryHealthCard,
   type DeliveryHealth,
@@ -20,6 +21,8 @@ export default async function SettingsPage() {
   if (!profile || !canManageUsers(profile.role)) {
     redirect('/');
   }
+
+  const settings = await getSettings(supabase);
 
   // Notification delivery health (last 7 days) — admins can read all deliveries.
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -69,16 +72,7 @@ export default async function SettingsPage() {
 
       <DeliveryHealthCard health={health} />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">General Settings</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">
-            System configuration will be available in a future release. For now, thresholds and approval rules can be configured directly in the database.
-          </p>
-        </CardContent>
-      </Card>
+      <SettingsForm initial={settings} />
     </div>
   );
 }
