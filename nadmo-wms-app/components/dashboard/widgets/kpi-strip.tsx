@@ -17,22 +17,26 @@ export function KpiStrip({ kpis }: { kpis: DashboardKpis }) {
       <KpiCard
         title="In Transit"
         value={kpis.inTransit}
-        description="Active shipments"
+        description={kpis.inTransit === 1 ? 'Active shipment' : 'Active shipments'}
         icon={Truck}
-        variant="warning"
+        variant="info"
       />
       <KpiCard
         title="Available Units"
         value={kpis.availableUnits.toLocaleString()}
-        description="Stock ready to dispatch"
         icon={Boxes}
         variant="success"
+        progress={{ pct: kpis.capacityPct, label: 'Network capacity used' }}
       />
       <KpiCard
         title="Low Stock"
         value={kpis.lowStock}
         description={
-          kpis.critical > 0 ? `${kpis.critical} critical` : 'Categories below threshold'
+          kpis.critical > 0
+            ? `${kpis.critical} critical · ${kpis.lowStock - kpis.critical} low`
+            : kpis.lowStock > 0
+              ? 'Categories below threshold'
+              : 'All categories healthy'
         }
         icon={AlertTriangle}
         variant={lowStockVariant}

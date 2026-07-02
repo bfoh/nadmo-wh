@@ -31,6 +31,7 @@ export interface DashboardKpis {
   availableUnits: number;
   lowStock: number;
   critical: number;
+  capacityPct: number;
 }
 
 export interface StockAlertRow {
@@ -151,6 +152,7 @@ export async function getKpiData(
     inTransit,
     lowStock: health.lowCount,
     critical: health.criticalCount,
+    capacityPct: stock.capacityPct,
   };
 }
 
