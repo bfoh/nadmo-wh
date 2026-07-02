@@ -28,6 +28,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { NadmoLogo } from '@/components/ui/nadmo-logo';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { NotificationCenter } from '@/components/notifications/notification-center';
 import { UserRole } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
@@ -228,21 +229,8 @@ export function Topbar({ role, userName, warehouseName, notificationCount = 0 }:
       <div className="flex items-center gap-1.5">
         <ThemeToggle />
 
-        {/* Alerts bell — hidden on mobile (it's in the bottom tab bar) */}
-        <Link
-          href="/alerts"
-          aria-label={`Alerts${notificationCount ? `, ${notificationCount} unread` : ''}`}
-          className="hidden lg:flex"
-        >
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="size-5" />
-            {notificationCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-critical text-white text-[10px] font-semibold leading-none rounded-full flex items-center justify-center nums">
-                {notificationCount > 9 ? '9+' : notificationCount}
-              </span>
-            )}
-          </Button>
-        </Link>
+        {/* Notification center — desktop (mobile uses the bottom tab bar's Alerts) */}
+        <NotificationCenter unreadCount={notificationCount} className="hidden lg:block" />
 
         <DropdownMenu>
           <DropdownMenuTrigger className="flex items-center gap-2 rounded-md pl-1.5 pr-2 py-1 outline-none transition-colors hover:bg-accent focus-visible:ring-3 focus-visible:ring-ring/40">
