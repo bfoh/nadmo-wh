@@ -2,7 +2,7 @@
 
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import { useEffect } from 'react';
 import { useTheme } from 'next-themes';
 
@@ -50,15 +50,42 @@ function FitBounds({ points }: { points: [number, number][] }) {
   useEffect(() => {
     if (points.length === 0) return;
     if (points.length === 1) {
-      map.setView(points[0], 11);
+      map.setView(points[0], 10);
       return;
     }
-    map.fitBounds(L.latLngBounds(points), { padding: [40, 40] });
+    // maxZoom keeps the whole country in view when markers are clustered.
+    map.fitBounds(L.latLngBounds(points), { padding: [30, 30], maxZoom: 9 });
   }, [map, points]);
   return null;
 }
 
 const TYPE_LABEL: Record<string, string> = { hq: 'HQ', regional: 'Regional', district: 'District' };
+
+// Shared info block — used by both the hover Tooltip and the click Popup.
+function WarehouseInfo({ w }: { w: MapWarehouse }) {
+  return (
+    <div className="min-w-[180px] font-sans">
+      <div className="text-sm font-semibold text-[#161616]">{w.name}</div>
+      <div className="font-mono text-[11px] text-[#6b7280]">{w.code}</div>
+      <div className="mt-1 text-[11px] uppercase tracking-wide text-[#6b7280]">
+        {TYPE_LABEL[w.type] ?? w.type}
+        {w.region ? ` · ${w.region}` : ''}
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-4 border-t border-[#e5e7eb] pt-2 text-xs">
+        <span className="text-[#6b7280]">Available</span>
+        <span className="font-semibold text-[#161616]" style={{ fontVariantNumeric: 'tabular-nums' }}>
+          {w.available.toLocaleString()}
+        </span>
+      </div>
+      {w.capacityPct != null && (
+        <div className="flex items-center justify-between gap-4 text-xs">
+          <span className="text-[#6b7280]">Capacity used</span>
+          <span className="font-medium text-[#161616]">{w.capacityPct}%</span>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function WarehouseMap({ warehouses }: { warehouses: MapWarehouse[] }) {
   const { resolvedTheme } = useTheme();
@@ -86,27 +113,13 @@ export function WarehouseMap({ warehouses }: { warehouses: MapWarehouse[] }) {
       <FitBounds points={points} />
       {warehouses.map((w) => (
         <Marker key={w.id} position={[w.lat, w.lng]} icon={pinIcon(w.type, stockColor(w.available))}>
+          {/* Hover preview */}
+          <Tooltip direction="top" offset={[0, -8]} opacity={1} className="wh-tooltip">
+            <WarehouseInfo w={w} />
+          </Tooltip>
+          {/* Click (sticky, closeable) */}
           <Popup>
-            <div className="min-w-[180px] font-sans">
-              <div className="text-sm font-semibold text-[#161616]">{w.name}</div>
-              <div className="font-mono text-[11px] text-[#6b7280]">{w.code}</div>
-              <div className="mt-1 text-[11px] uppercase tracking-wide text-[#6b7280]">
-                {TYPE_LABEL[w.type] ?? w.type}
-                {w.region ? ` · ${w.region}` : ''}
-              </div>
-              <div className="mt-2 flex items-center justify-between gap-4 border-t border-[#e5e7eb] pt-2 text-xs">
-                <span className="text-[#6b7280]">Available</span>
-                <span className="font-semibold text-[#161616]" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                  {w.available.toLocaleString()}
-                </span>
-              </div>
-              {w.capacityPct != null && (
-                <div className="flex items-center justify-between gap-4 text-xs">
-                  <span className="text-[#6b7280]">Capacity used</span>
-                  <span className="font-medium text-[#161616]">{w.capacityPct}%</span>
-                </div>
-              )}
-            </div>
+            <WarehouseInfo w={w} />
           </Popup>
         </Marker>
       ))}

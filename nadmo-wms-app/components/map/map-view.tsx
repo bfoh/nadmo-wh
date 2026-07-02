@@ -98,7 +98,7 @@ export function MapView({ warehouses }: { warehouses: MapWarehouse[] }) {
       </div>
 
       {/* Map */}
-      <div className="h-[calc(100dvh-20rem)] min-h-[360px] w-full overflow-hidden border border-border">
+      <div className="h-[calc(100dvh-13rem)] min-h-[560px] w-full overflow-hidden border border-border">
         <WarehouseMap warehouses={visible} />
       </div>
 
