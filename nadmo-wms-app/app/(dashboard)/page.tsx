@@ -152,7 +152,7 @@ export default async function DashboardPage() {
   const nationalView = (
     <div className="space-y-6">
       <KpiStrip kpis={nationalKpis} />
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6 lg:grid-cols-3">
         <StockDistributionChart regions={chartRegions} />
         <div className="lg:col-span-2">
           <RegionalStockChart regions={chartRegions} />
