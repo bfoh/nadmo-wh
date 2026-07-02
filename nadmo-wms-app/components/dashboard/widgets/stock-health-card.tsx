@@ -41,7 +41,9 @@ export function StockHealthCard({
       </CardHeader>
       <CardContent>
         {alerts.length > 0 ? (
-          <div className="overflow-x-auto">
+          <>
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border text-left text-[11px] uppercase tracking-[0.08em] text-ink-faint">
@@ -87,6 +89,49 @@ export function StockHealthCard({
               </tbody>
             </table>
           </div>
+
+          {/* Mobile card list */}
+          <div className="md:hidden space-y-2">
+            {alerts.map((a, i) => {
+              const s = STATUS[a.status] ?? STATUS.amber;
+              return (
+                <div
+                  key={`${a.warehouse_id}-${a.category_name}-${i}`}
+                  className="border border-border p-3"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      {showWarehouse && (
+                        <div className="truncate text-sm font-medium text-ink">{a.warehouse_name}</div>
+                      )}
+                      <div className="truncate text-xs text-ink-subtle">{a.category_name}</div>
+                    </div>
+                    <span
+                      className={cn(
+                        'inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium',
+                        s.pill
+                      )}
+                    >
+                      <span className={cn('size-1.5 rounded-full', s.dot)} aria-hidden />
+                      {s.label}
+                    </span>
+                  </div>
+                  <div className="mt-2 flex items-center gap-4 text-xs text-ink-subtle">
+                    <span>
+                      Available{' '}
+                      <span className="nums font-semibold text-ink">
+                        {Number(a.available).toLocaleString()}
+                      </span>
+                    </span>
+                    <span>
+                      Min <span className="nums font-medium text-ink-muted">{Number(a.min_quantity).toLocaleString()}</span>
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          </>
         ) : (
           <div className="flex flex-col items-center gap-3 py-10 text-center">
             <div className="flex size-12 items-center justify-center rounded-full bg-ready-soft">
