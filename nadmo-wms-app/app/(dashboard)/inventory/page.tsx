@@ -18,7 +18,7 @@ export default async function InventoryPage() {
   // Fetch inventory with SKU details
   const { data: inventory } = await supabase
     .from('inventory')
-    .select('*, sku:sku_id(*), warehouse:warehouse_id(*)')
+    .select('*, sku:sku_id(*, category:category_id(*)), warehouse:warehouse_id(*)')
     .order('quantity', { ascending: false })
     .limit(100);
 
